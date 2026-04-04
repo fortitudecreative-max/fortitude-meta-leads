@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fortitude Leads Dashboard</title>
+<style>
+body{margin:0;background:#f8fafc;font-family:system-ui}
+#loading{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:1rem}
+.spinner{width:2rem;height:2rem;border:3px solid #e2e8f0;border-top-color:#3b82f6;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#err{color:#ef4444;display:none;text-align:center;padding:2rem}
+</style>
+</head>
+<body>
+<div id="loading"><div class="spinner"></div><p style="color:#64748b">Loading Fortitude Leads Dashboard...</p></div>
+<div id="err"><p id="errmsg"></p><button onclick="loadDash()" style="margin-top:1rem;padding:0.5rem 1rem;border-radius:0.5rem;border:1px solid #e2e8f0;cursor:pointer">Retry</button></div>
+<script>
+function loadDash(){
+document.getElementById('loading').style.display='flex';
+document.getElementById('err').style.display='none';
+fetch('https://lnpgnjkkdjpkltevliiq.supabase.co/rest/v1/dashboard_pages?id=eq.meta-leads&select=html',{
+headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxucGduamtrZGpwa2x0ZXZsaWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxOTc4OTAsImV4cCI6MjA4ODc3Mzg5MH0.ZmullnWQk-EMNnZvi-APMkgT8FRM7lKTMMeR_XOQhww'}
+}).then(r=>r.json()).then(d=>{
+document.open();document.write(d[0].html);document.close();
+}).catch(e=>{
+document.getElementById('loading').style.display='none';
+document.getElementById('err').style.display='block';
+document.getElementById('errmsg').textContent='Error: '+e.message;
+});
+}
+loadDash();
+</script>
+</body>
+</html>
