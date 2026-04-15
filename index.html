@@ -19,6 +19,9 @@ body{margin:0;background:#f8fafc;font-family:system-ui}
 // Fortitude shared header — identical across Leads, Branding, Marketing, SEO, PPC.
 // Static HTML version for the Leads bootloader (no React here). Injected into the
 // dashboard HTML returned from Supabase before document.write.
+//
+// Mobile layout: logo on the LEFT, hamburger on the RIGHT. The mobile drawer
+// opens from the right edge and contains the section nav.
 var SHARED_HEADER_HTML = [
   '<style>',
   '  .fc-shared-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 24px;height:128px;border-bottom:1px solid #2A2A2A;background:#111;position:sticky;top:0;z-index:30;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;box-sizing:border-box}',
@@ -34,7 +37,7 @@ var SHARED_HEADER_HTML = [
   '  .fc-shared-header .fc-right{display:flex;align-items:center;gap:12px;flex-shrink:0}',
   '  .fc-mobile-menu{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:40}',
   '  .fc-mobile-menu.open{display:block}',
-  '  .fc-mobile-menu-panel{position:absolute;left:0;top:0;bottom:0;width:288px;background:#111;border-right:1px solid #2A2A2A;padding:16px 8px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}',
+  '  .fc-mobile-menu-panel{position:absolute;right:0;top:0;bottom:0;width:288px;background:#111;border-left:1px solid #2A2A2A;padding:16px 8px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}',
   '  .fc-mobile-menu-panel .fc-mhead{display:flex;align-items:center;justify-content:space-between;padding:0 12px 12px;border-bottom:1px solid #2A2A2A;margin-bottom:8px}',
   '  .fc-mobile-menu-panel .fc-mhead span{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8A8A8A}',
   '  .fc-mobile-menu-panel .fc-mhead button{background:transparent;border:none;color:#8A8A8A;font-size:24px;cursor:pointer;padding:4px}',
@@ -43,17 +46,14 @@ var SHARED_HEADER_HTML = [
   '  .fc-mobile-menu-panel a.fc-active{color:#F5F5F5;background:rgba(214,0,0,.15);box-shadow:inset 3px 0 0 #D60000}',
   '  .fc-mobile-menu-panel a.fc-active .fc-current{font-size:10px;color:#D60000;font-weight:700}',
   '  @media (max-width:1023px){',
-  '    .fc-shared-header{height:80px;padding:0 12px;gap:12px}',
+  '    .fc-shared-header{height:64px;padding:0 12px;gap:12px}',
   '    .fc-shared-header .fc-burger{display:flex}',
-  '    .fc-shared-header .fc-logo{height:64px}',
+  '    .fc-shared-header .fc-logo{height:40px}',
   '    .fc-shared-header .fc-nav{display:none}',
   '  }',
   '</style>',
   '<header class="fc-shared-header">',
   '  <div class="fc-left">',
-  '    <button class="fc-burger" aria-label="Open menu" onclick="document.getElementById(\'fcMobileMenu\').classList.add(\'open\')">',
-  '      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
-  '    </button>',
   '    <a href="https://admin.fortitudecreative.com" style="display:flex;align-items:center;flex-shrink:0"><img src="https://fortitudecreative.com/wp-content/uploads/2025/04/Fortitude-Logo32.svg" alt="Fortitude Creative" class="fc-logo"/></a>',
   '    <nav class="fc-nav">',
   '      <a href="https://leads.fortitudecreative.com" class="fc-active">LEADS</a>',
@@ -64,7 +64,9 @@ var SHARED_HEADER_HTML = [
   '    </nav>',
   '  </div>',
   '  <div class="fc-right">',
-  '    <a href="#sign-in" style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#8A8A8A;text-decoration:none;padding:6px 8px">Sign in</a>',
+  '    <button class="fc-burger" aria-label="Open menu" onclick="document.getElementById(\'fcMobileMenu\').classList.add(\'open\')">',
+  '      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  '    </button>',
   '  </div>',
   '</header>',
   '<div id="fcMobileMenu" class="fc-mobile-menu" onclick="this.classList.remove(\'open\')">',
