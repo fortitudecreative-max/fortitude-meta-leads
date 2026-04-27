@@ -57,6 +57,11 @@
   .btn-qual-gold { background: transparent; color: #f59e0b; border-color: #f59e0b; }
   .btn-qual-gold:hover { background: #f59e0b; color: white; }
   .btn-qual-gold.active { background: #f59e0b; color: white; }
+  /* Motion route — pink, distinct from green qualified / red unqualified.
+     'unqualified for Fortitude, qualified for Motion Brands' is the model. */
+  .btn-qual-pink { background: transparent; color: #ec4899; border-color: #ec4899; }
+  .btn-qual-pink:hover { background: #ec4899; color: white; }
+  .btn-qual-pink.active { background: #ec4899; color: white; }
   
   .info-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: #94a3b8; }
   .info-row svg { width: 1rem; height: 1rem; color: #4a5568; flex-shrink: 0; }
@@ -140,7 +145,7 @@
   .fc-field-value { font-family:'Oswald',sans-serif; font-size:13px; color:#ccc; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .fc-link { color:#D60000 !important; text-decoration:none; }
   .fc-link:hover { text-decoration:underline; }
-  .fc-card-actions { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:6px; padding-top:12px; border-top:1px solid #222; }
+  .fc-card-actions { display:grid; grid-template-columns:1fr 1fr 1fr 1fr 1fr; gap:6px; padding-top:12px; border-top:1px solid #222; }
   .score-badge { font-family:'Oswald',sans-serif !important; padding:2px 8px !important; border-radius:3px !important; font-size:11px !important; font-weight:700 !important; text-transform:uppercase !important; letter-spacing:0.06em !important; }
   .tag { font-family:'Oswald',sans-serif !important; padding:3px 8px !important; font-size:11px !important; font-weight:600 !important; border-radius:3px !important; letter-spacing:0.06em !important; }
   /* Stat cards: gradient bg + line border + radius matching Branding */
@@ -157,6 +162,13 @@
   .lead-card.hot { border-color:#22C55E !important; }
   .lead-card.warm { border-color:#F59E0B !important; }
   .lead-card.cold { border-color:#3B82F6 !important; }
+  /* Motion-routed leads (under $250k → Motion Brands sister agency).
+     Pink/purple palette so they're visually distinct from green/yellow/blue
+     freshness signals on Fortitude leads. Compound class selectors win
+     over the plain .hot/.warm/.cold rules above on specificity. */
+  .lead-card.motion.hot  { border-color:#EC4899 !important; } /* hot pink */
+  .lead-card.motion.warm { border-color:#C084FC !important; } /* purple-pink */
+  .lead-card.motion.cold { border-color:#A855F7 !important; } /* purple */
   /* Buttons styled like Branding's New Client / Backup */
   .hdr-btn { font-family:'Oswald',sans-serif !important; text-transform:uppercase !important; letter-spacing:0.08em !important; font-weight:600 !important; font-size:13px !important; border-radius:4px !important; padding:10px 18px !important; height:auto !important; line-height:1.2 !important; display:inline-flex !important; align-items:center !important; gap:6px !important; }
   .fc-page-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-left:auto; }
@@ -512,6 +524,7 @@ function renderStats() {
   const total = allLeads.length;
   const qual = allLeads.filter(l => l.status === 'qualified').length;
   const unqual = allLeads.filter(l => l.status === 'unqualified').length;
+  const motion = allLeads.filter(l => l.status === 'motion').length;
   const pending = allLeads.filter(l => l.status === 'pending').length;
   const won = allLeads.filter(l => l.status === 'won').length;
   const avgScore = total > 0 ? Math.round(allLeads.reduce((s,l) => s + getLeadScore(l), 0) / total) : 0;
@@ -522,6 +535,7 @@ function renderStats() {
     card('$',    'rgba(214,0,0,0.15)',    '#D60000', 'Total',       total,    '#fff') +
     card('✓', 'rgba(34,197,94,0.15)',  '#22C55E', 'Qualified',   qual,     '#22C55E') +
     card('×', 'rgba(239,68,68,0.15)',  '#F87171', 'Unqualified', unqual,   '#F87171') +
+    card('M', 'rgba(236,72,153,0.15)', '#EC4899', 'Motion',      motion,   '#EC4899') +
     card('●', 'rgba(245,158,11,0.15)', '#F59E0B', 'Pending',     pending,  '#F59E0B') +
     card('★', 'rgba(34,197,94,0.15)',  '#22C55E', 'Won',         won,      '#22C55E') +
     card('◎', 'rgba(96,165,250,0.15)', '#60A5FA', 'Avg Score',   avgScore, '#fff');
@@ -530,7 +544,7 @@ function renderStats() {
 function renderFilters() {
   const total = allLeads.length;
   const counts = {};
-  const sCounts = { qualified:0, unqualified:0, booked:0, won:0, pending:0 };
+  const sCounts = { qualified:0, unqualified:0, motion:0, booked:0, won:0, pending:0 };
   const tCounts = { hot:0, warm:0, cold:0 };
   allLeads.forEach(l => {
     counts[l.industry] = (counts[l.industry]||0) + 1;
@@ -553,6 +567,7 @@ function renderFilters() {
     { key:'all', label:'All Statuses', count:total },
     { key:'qualified', label:'Qualified', count:sCounts.qualified },
     { key:'unqualified', label:'Unqualified', count:sCounts.unqualified },
+    { key:'motion', label:'Motion', count:sCounts.motion },
     { key:'booked', label:'Booked', count:sCounts.booked },
     { key:'won', label:'Won', count:sCounts.won },
     { key:'pending', label:'Pending', count:sCounts.pending }
@@ -628,6 +643,7 @@ function renderLeads() {
       <div class="fc-card-actions">
         <button class="btn-qual btn-qual-green ${lead.status==='qualified'?'active':''}" onclick="toggleStatus(${idx},'qualified')">Qualified</button>
         <button class="btn-qual btn-qual-red ${lead.status==='unqualified'?'active':''}" onclick="toggleStatus(${idx},'unqualified')">Unqual</button>
+        <button class="btn-qual btn-qual-pink ${lead.status==='motion'?'active':''}" onclick="toggleStatus(${idx},'motion')">Motion</button>
         <button class="btn-qual btn-qual-blue ${lead.status==='booked'?'active':''}" onclick="toggleStatus(${idx},'booked')">Booked</button>
         <button class="btn-qual btn-qual-gold ${lead.status==='won'?'active':''}" onclick="toggleStatus(${idx},'won')">Won</button>
       </div>
@@ -801,32 +817,33 @@ function migrateLowRevTarget() {
 }
 
 function autoClassify() {
+  // Routing rules (auto-applied on every refresh to leads still 'pending'):
+  //
+  //   Target industry (HVAC / Plumbing / Electrical) AND ≥ $250k revenue
+  //                                                                → QUALIFIED (Fortitude)
+  //   Everything else (off-industry OR under-$250k revenue, any industry)
+  //                                                                → MOTION (sister agency)
+  //
+  // Motion is intentionally NOT in the capi-batch eligible status list,
+  // so Meta CAPI gets ZERO signal about Motion leads — neither "Lead"
+  // (qualified) nor "Bad" (unqualified). Silence prevents Meta's algo
+  // from learning to find more startups under $250k.
+  //
+  // Operators can still flip any auto-classified lead to Unqualified /
+  // Booked / Won manually via the action buttons.
   let changed = false;
   allLeads.forEach(l => {
     if (l.status !== 'pending') return;
     const ind = l.industry || 'other';
-    const temp = getLeadTemp(l);
     const rev = (l.revenue || '').toLowerCase();
     const isLowRev = rev.includes('under') || rev.includes('25k') || rev.includes('250k') || rev.includes('<') || rev === '' || rev === 'unknown';
     const isHighRev = rev.includes('500k') || rev.includes('1m') || rev.includes('5m');
+    const isTargetInd = (ind === 'hvac' || ind === 'plumbing' || ind === 'electrical');
 
-    // HOT leads (< 3 days) of ANY industry auto-qualify so they land in
-    // the operator's default "Qualified" view immediately. Operator can
-    // still mark them Unqualified manually if they're junk. The point is
-    // freshness gets the benefit of the doubt — stale auto-rejection on
-    // a brand-new "other"-industry lead was hiding real opportunities.
-    if (temp === 'hot') {
+    if (isTargetInd && (isHighRev || !isLowRev)) {
       l.status = 'qualified'; statusMap[l.id] = 'qualified'; changed = true;
-      return;
-    }
-
-    // Warm + cold leads use the original industry-based rules.
-    if (ind === 'hvac' || ind === 'plumbing' || ind === 'electrical') {
-      if (isLowRev && !isHighRev) { /* leave as pending - no signal to Meta */ return; }
-      else { l.status = 'qualified'; statusMap[l.id] = 'qualified'; }
-      changed = true;
-    } else if (ind === 'other') {
-      l.status = 'unqualified'; statusMap[l.id] = 'unqualified'; changed = true;
+    } else {
+      l.status = 'motion'; statusMap[l.id] = 'motion'; changed = true;
     }
   });
   if (changed) saveStatus();
