@@ -355,33 +355,46 @@ function getLeadTemp(lead) {
 }
 
 // ─── SCORING ─────────────────────────────────────────────────────────────────
+// Weights chosen so that within the same temperature band, REVENUE dominates
+// the sort. The previous weights had industry (40 max) + immediate (24) +
+// website (6) = 70 base + temp 25 = 95, which left only 5 points of headroom
+// for revenue before the cap clamped everyone to 100. Now revenue swings 36
+// points (4 → 40), industry only 8, so a high-revenue 'other' lead correctly
+// outranks a low-revenue HVAC lead at the same temperature.
 function getLeadScore(lead) {
   let score = 0;
-  if (lead.industry === 'hvac') score += 40;
-  else if (lead.industry === 'plumbing') score += 15;
-  else if (lead.industry === 'electrical') score += 10;
 
+  // Industry: signal but not dominant.
+  if (lead.industry === 'hvac') score += 8;
+  else if (lead.industry === 'plumbing') score += 4;
+  else if (lead.industry === 'electrical') score += 3;
+
+  // Revenue: the dominant ranking signal. Cascade ordered most-specific first
+  // because the FB lead form values overlap on substrings ($1m_-_$5m contains
+  // both '1m' and '5m'; $500k_-_$1m contains '1m'; etc.).
   const rev = (lead.revenue || '').toLowerCase();
-  if (rev.includes('5m')) score += 30;
-  else if (rev.includes('1m')) score += 24;
-  else if (rev.includes('500k') && rev.includes('1m')) score += 18;
-  else if (rev.includes('250k') && rev.includes('500k')) score += 12;
-  else score += 6;
+  if (rev.includes('5m+') || rev === '$5m+' || rev.endsWith('5m+')) score += 40;
+  else if (rev.includes('1m') && rev.includes('5m')) score += 32;       // $1m_-_$5m
+  else if (rev.includes('500k') && rev.includes('1m')) score += 24;     // $500k_-_$1m
+  else if (rev.includes('250k') && rev.includes('500k')) score += 14;   // $250k_-_$500k
+  else if (rev.includes('250k') || rev.includes('under')) score += 4;   // under_$250k
+  else score += 4;                                                       // blank / unknown
 
+  // Timeline: still meaningful but doesn't override revenue.
   const tl = (lead.timeline || '').toLowerCase();
-  if (tl.includes('immediately') || tl.includes('ready')) score += 24;
-  else if (tl.includes('within') || tl.includes('30')) score += 16;
-  else if (tl.includes('1-3') || tl.includes('1_3')) score += 8;
+  if (tl.includes('immediately') || tl.includes('ready')) score += 14;
+  else if (tl.includes('within') || tl.includes('30')) score += 9;
+  else if (tl.includes('1-3') || tl.includes('1_3')) score += 5;
 
-  if (lead.website && lead.website !== 'none' && lead.website.length > 2 && !lead.website.includes("don't")) score += 6;
+  if (lead.website && lead.website !== 'none' && lead.website.length > 2 && !lead.website.includes("don't")) score += 3;
 
-  // Temperature bonus / penalty. Picked so a brand-new "other"-industry
-  // lead with strong revenue + immediate timeline outranks a stale HVAC
-  // lead with the same fundamentals — fresh attention matters.
+  // Temperature bonus / penalty. Hot leads of any industry/revenue land
+  // above warm/cold of the same fundamentals; revenue still rules within
+  // the temp band.
   const temp = getLeadTemp(lead);
   if (temp === 'hot') score += 25;
   else if (temp === 'warm') score += 10;
-  else score -= 15; // cold penalty
+  else score -= 15;
 
   return Math.max(0, Math.min(score, 100));
 }
