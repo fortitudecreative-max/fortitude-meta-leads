@@ -26,7 +26,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const PAGE_ID = process.env.DASHBOARD_PAGE_ID || 'meta-leads'
-const SUPABASE_URL = process.env.SUPABASE_URL
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 if (process.env.SKIP_DASHBOARD_UPLOAD === '1') {
@@ -35,9 +35,9 @@ if (process.env.SKIP_DASHBOARD_UPLOAD === '1') {
 }
 
 if (!SUPABASE_URL || !SERVICE_KEY) {
-  console.error('[upload-dashboard] FATAL: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY required')
-  console.error('[upload-dashboard] Set them on the Vercel project env, or run with SKIP_DASHBOARD_UPLOAD=1 to bypass.')
-  process.exit(1)
+  console.warn('[upload-dashboard] SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required to update dashboard_pages.')
+  console.warn('[upload-dashboard] Static deploy will continue, but dashboard.html was not uploaded to Supabase.')
+  process.exit(0)
 }
 
 const htmlPath = resolve(process.cwd(), 'dashboard.html')
