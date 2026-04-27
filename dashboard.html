@@ -364,10 +364,11 @@ function getLeadTemp(lead) {
 function getLeadScore(lead) {
   let score = 0;
 
-  // Industry: signal but not dominant.
-  if (lead.industry === 'hvac') score += 8;
-  else if (lead.industry === 'plumbing') score += 4;
-  else if (lead.industry === 'electrical') score += 3;
+  // Industry: HVAC / Plumbing / Electrical are the three target industries
+  // and all share the same bonus. Anything else (including blank) gets 0.
+  // The point is "is this a target industry, yes or no?" — within yes,
+  // revenue/timeline decide, not industry.
+  if (lead.industry === 'hvac' || lead.industry === 'plumbing' || lead.industry === 'electrical') score += 8;
 
   // Revenue: the dominant ranking signal. Cascade ordered most-specific first
   // because the FB lead form values overlap on substrings ($1m_-_$5m contains
