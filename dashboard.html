@@ -125,6 +125,11 @@
   .fc-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; gap:8px; flex-wrap:wrap; }
   .fc-card-name { font-family:'Oswald',sans-serif; font-size:16px; font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:0.04em; line-height:1.2; }
   .fc-card-meta { display:flex; align-items:center; gap:8px; margin-top:4px; flex-wrap:wrap; }
+  /* Date sits on its own row below the badge cluster — keeps placement
+     consistent whether the industry tag is short ("HVAC") or long
+     ("ELECTRICAL"). Previously flex-wrap meant short-tag cards put the
+     date on line 1 and long-tag cards pushed it to line 2. */
+  .fc-card-date-row { font-family:'Oswald',sans-serif; font-size:11px; color:#888; letter-spacing:0.04em; margin-bottom:10px; }
   .fc-card-date { font-family:'Oswald',sans-serif; font-size:12px; color:#666; text-transform:uppercase; letter-spacing:0.06em; }
   .fc-card-contact { font-family:'Oswald',sans-serif; font-size:13px; color:#666; margin-bottom:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .fc-card-price { font-family:'Oswald',sans-serif; font-size:24px; font-weight:700; color:#fff; margin-bottom:14px; font-variant-numeric:tabular-nums; line-height:1; }
@@ -143,7 +148,12 @@
   /* Lead cards: gradient + line border. Border WIDTH stays 2px so freshness
      color (set by .hot/.warm/.cold above) reads strongly. Status no longer
      drives border color — see status visual cues in the first <style> block. */
-  .lead-card { background:linear-gradient(180deg,#141414 0%,#0E0E0E 100%) !important; border:2px solid #2A2A2A !important; border-radius:12px !important; color:#F5F5F5 !important; }
+  .lead-card { background:linear-gradient(180deg,#141414 0%,#0E0E0E 100%) !important; border:2px solid #2A2A2A !important; border-radius:12px !important; color:#F5F5F5 !important; display:flex !important; flex-direction:column !important; }
+  /* Push the actions row to the bottom of the card so cards with shorter
+     content (e.g. blank company / website) don't end up with extra
+     whitespace under the buttons. The grid auto-stretches all cards in
+     a row to the same height anyway; this just keeps the buttons aligned. */
+  .lead-card .fc-card-actions { margin-top:auto; }
   .lead-card.hot { border-color:#22C55E !important; }
   .lead-card.warm { border-color:#F59E0B !important; }
   .lead-card.cold { border-color:#3B82F6 !important; }
@@ -374,10 +384,10 @@ function getLeadScore(lead) {
   // because the FB lead form values overlap on substrings ($1m_-_$5m contains
   // both '1m' and '5m'; $500k_-_$1m contains '1m'; etc.).
   const rev = (lead.revenue || '').toLowerCase();
-  if (rev.includes('5m+') || rev === '$5m+' || rev.endsWith('5m+')) score += 40;
-  else if (rev.includes('1m') && rev.includes('5m')) score += 32;       // $1m_-_$5m
-  else if (rev.includes('500k') && rev.includes('1m')) score += 24;     // $500k_-_$1m
-  else if (rev.includes('250k') && rev.includes('500k')) score += 14;   // $250k_-_$500k
+  if (rev.includes('5m+') || rev === '$5m+' || rev.endsWith('5m+')) score += 45;
+  else if (rev.includes('1m') && rev.includes('5m')) score += 36;       // $1m_-_$5m
+  else if (rev.includes('500k') && rev.includes('1m')) score += 27;     // $500k_-_$1m
+  else if (rev.includes('250k') && rev.includes('500k')) score += 16;   // $250k_-_$500k
   else if (rev.includes('250k') || rev.includes('under')) score += 4;   // under_$250k
   else score += 4;                                                       // blank / unknown
 
@@ -601,13 +611,13 @@ function renderLeads() {
       <div class="fc-card-header">
         <div class="fc-card-name">${lead.full_name || 'Unknown'}</div>
       </div>
-      <div class="fc-card-meta" style="margin-bottom:10px;">
+      <div class="fc-card-meta" style="margin-bottom:6px;">
         <span class="tag tag-${ind}">${ind.toUpperCase()}</span>
         <span class="temp-pill temp-${temp}">${tempLabel}</span>
         <span class="score-badge ${scoreCls}">Score ${score}</span>
-        <span class="fc-card-date">${fmtDate(lead.created_time)}</span>
       </div>
-      ${lead.company ? `<div class="fc-card-contact">Company: ${lead.company}</div>` : ''}
+      <div class="fc-card-date-row">${fmtDate(lead.created_time)}</div>
+      <div class="fc-card-contact">Company: ${lead.company || '—'}</div>
       <div class="fc-card-price">${fmt(lead.revenue) || '—'}<span class="fc-card-permonth">revenue</span></div>
       <div class="fc-card-fieldgrid">
         <div class="fc-field"><span class="fc-field-label">Email</span>${lead.email ? `<a href="mailto:${lead.email}" class="fc-field-value fc-link">${lead.email}</a>` : '<span class="fc-field-value">—</span>'}</div>
