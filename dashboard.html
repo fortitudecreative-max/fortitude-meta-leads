@@ -15,12 +15,26 @@
   .pill { display: inline-flex; align-items: center; padding: 0.4rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.15s; border: 1px solid #2a2a2a; background: #1a1a1a; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
   .pill:hover { background: #2a2a2a; color: #e2e8f0; }
   .pill.active { background: #dc2626; color: white; border-color: #dc2626; }
-  .lead-card { background: #111111; border-radius: 1rem; border: 1px solid #2a2a2a; padding: 1.25rem; transition: all 0.15s; }
-  .lead-card:hover { box-shadow: 0 4px 16px rgba(220,38,38,0.1); border-color: #3a3a3a; }
-  .lead-card.qualified { border-color: #16a34a; }
-  .lead-card.unqualified { border-color: #991b1b; opacity: 0.5; }
-  .lead-card.booked { border-color: #3b82f6; }
-  .lead-card.won { border-color: #f59e0b; background: #111111; box-shadow: 0 0 12px rgba(245,158,11,0.15); }
+  .lead-card { background: #111111; border-radius: 1rem; border: 2px solid #2a2a2a; padding: 1.25rem; transition: all 0.15s; }
+  .lead-card:hover { box-shadow: 0 4px 16px rgba(220,38,38,0.1); }
+  /* Status visual cues — kept minimal so freshness (border) is the dominant signal. */
+  .lead-card.unqualified { opacity: 0.45; }
+  .lead-card.won { box-shadow: 0 0 12px rgba(245,158,11,0.25); }
+  /* Freshness = border color. Hot = under 3d, Warm = 3-7d, Cold = older than 7d. */
+  .lead-card.hot { border-color: #22c55e; }
+  .lead-card.warm { border-color: #f59e0b; }
+  .lead-card.cold { border-color: #3b82f6; }
+  /* Cold leads: grey out the data fields inside but keep border crisp + actions usable. */
+  .lead-card.cold .fc-card-name,
+  .lead-card.cold .fc-card-meta,
+  .lead-card.cold .fc-card-contact,
+  .lead-card.cold .fc-card-price,
+  .lead-card.cold .fc-card-fieldgrid { opacity: 0.55; }
+  /* Freshness pill in meta row */
+  .temp-pill { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; }
+  .temp-hot { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.4); }
+  .temp-warm { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.4); }
+  .temp-cold { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.4); }
   .tag { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.03em; }
   .tag-hvac { background: #16a34a22; color: #4ade80; border: 1px solid #16a34a44; }
   .tag-plumbing { background: #2563eb22; color: #60a5fa; border: 1px solid #2563eb44; }
@@ -126,12 +140,13 @@
   .tag { font-family:'Oswald',sans-serif !important; padding:3px 8px !important; font-size:11px !important; font-weight:600 !important; border-radius:3px !important; letter-spacing:0.06em !important; }
   /* Stat cards: gradient bg + line border + radius matching Branding */
   #stats-row > div, #dashboard .stat-card, #filter-bar { background:linear-gradient(180deg,#171717 0%,#0E0E0E 100%) !important; border:1px solid #2A2A2A !important; border-radius:12px !important; color:#F5F5F5 !important; }
-  /* Lead cards: gradient + line border */
-  .lead-card { background:linear-gradient(180deg,#141414 0%,#0E0E0E 100%) !important; border:1px solid #2A2A2A !important; border-radius:12px !important; color:#F5F5F5 !important; }
-  .lead-card.qualified { border-color:#22C55E !important; }
-  .lead-card.unqualified { border-color:#3a0000 !important; }
-  .lead-card.booked { border-color:#2E8BEA !important; }
-  .lead-card.won { border-color:#F59E0B !important; }
+  /* Lead cards: gradient + line border. Border WIDTH stays 2px so freshness
+     color (set by .hot/.warm/.cold above) reads strongly. Status no longer
+     drives border color — see status visual cues in the first <style> block. */
+  .lead-card { background:linear-gradient(180deg,#141414 0%,#0E0E0E 100%) !important; border:2px solid #2A2A2A !important; border-radius:12px !important; color:#F5F5F5 !important; }
+  .lead-card.hot { border-color:#22C55E !important; }
+  .lead-card.warm { border-color:#F59E0B !important; }
+  .lead-card.cold { border-color:#3B82F6 !important; }
   /* Buttons styled like Branding's New Client / Backup */
   .hdr-btn { font-family:'Oswald',sans-serif !important; text-transform:uppercase !important; letter-spacing:0.08em !important; font-weight:600 !important; font-size:13px !important; border-radius:4px !important; padding:10px 18px !important; height:auto !important; line-height:1.2 !important; display:inline-flex !important; align-items:center !important; gap:6px !important; }
   .fc-page-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-left:auto; }
@@ -280,7 +295,10 @@ async function loadStatusesFromServer() {
   } catch(e) { console.warn('Could not load server statuses:', e); }
 }
 let industryFilter = 'all';
-let statusFilter = 'all';
+// Default to Qualified on page load (per Jason's spec). Operators can switch
+// to All / Pending / Won via the dropdown but they almost always want to see
+// the qualified pipeline first.
+let statusFilter = 'qualified';
 
 // ─── COLUMN MAPPING ──────────────────────────────────────────────────────────
 function mapRow(row) {
@@ -319,6 +337,20 @@ function mapRow(row) {
   };
 }
 
+// ─── FRESHNESS / TEMPERATURE ─────────────────────────────────────────────────
+// Hot: < 3 days, Warm: 3–7 days, Cold: > 7 days. Drives both the border
+// color in renderLeads() and a meaningful score bonus so fresh leads
+// outrank stale ones in the default sort.
+function getLeadTemp(lead) {
+  if (!lead.created_time) return 'cold';
+  const ms = Date.now() - new Date(lead.created_time).getTime();
+  if (isNaN(ms)) return 'cold';
+  const days = ms / (1000 * 60 * 60 * 24);
+  if (days < 3) return 'hot';
+  if (days < 7) return 'warm';
+  return 'cold';
+}
+
 // ─── SCORING ─────────────────────────────────────────────────────────────────
 function getLeadScore(lead) {
   let score = 0;
@@ -339,7 +371,16 @@ function getLeadScore(lead) {
   else if (tl.includes('1-3') || tl.includes('1_3')) score += 8;
 
   if (lead.website && lead.website !== 'none' && lead.website.length > 2 && !lead.website.includes("don't")) score += 6;
-  return Math.min(score, 100);
+
+  // Temperature bonus / penalty. Picked so a brand-new "other"-industry
+  // lead with strong revenue + immediate timeline outranks a stale HVAC
+  // lead with the same fundamentals — fresh attention matters.
+  const temp = getLeadTemp(lead);
+  if (temp === 'hot') score += 25;
+  else if (temp === 'warm') score += 10;
+  else score -= 15; // cold penalty
+
+  return Math.max(0, Math.min(score, 100));
 }
 
 // ─── LIVE DATA FETCHING (via Supabase Edge Function proxy) ───────────────────
@@ -516,8 +557,13 @@ function renderLeads() {
     const idx = allLeads.indexOf(lead);
     const score = getLeadScore(lead);
     const ind = lead.industry || 'other';
+    const temp = getLeadTemp(lead);
     const scoreCls = score >= 60 ? 'score-high' : score >= 30 ? 'score-med' : 'score-low';
-    const cardCls = lead.status === 'qualified' ? 'qualified' : lead.status === 'unqualified' ? 'unqualified' : lead.status === 'booked' ? 'booked' : lead.status === 'won' ? 'won' : '';
+    // Temperature class drives the border color (hot/warm/cold).
+    // Status class still applies for opacity (unqualified) and glow (won).
+    const statusCls = lead.status === 'qualified' ? 'qualified' : lead.status === 'unqualified' ? 'unqualified' : lead.status === 'booked' ? 'booked' : lead.status === 'won' ? 'won' : '';
+    const cardCls = temp + ' ' + statusCls;
+    const tempLabel = temp === 'hot' ? 'HOT LEAD' : temp === 'warm' ? 'WARM LEAD' : 'COLD LEAD';
 
     const websiteOk = lead.website && lead.website !== 'none' && lead.website.length > 2 && !lead.website.includes("don't");
     const websiteUrl = websiteOk ? (lead.website.startsWith('http') ? lead.website : 'https://' + lead.website) : null;
@@ -527,6 +573,7 @@ function renderLeads() {
       </div>
       <div class="fc-card-meta" style="margin-bottom:10px;">
         <span class="tag tag-${ind}">${ind.toUpperCase()}</span>
+        <span class="temp-pill temp-${temp}">${tempLabel}</span>
         <span class="score-badge ${scoreCls}">Score ${score}</span>
         <span class="fc-card-date">${fmtDate(lead.created_time)}</span>
       </div>
@@ -717,9 +764,22 @@ function autoClassify() {
   allLeads.forEach(l => {
     if (l.status !== 'pending') return;
     const ind = l.industry || 'other';
+    const temp = getLeadTemp(l);
     const rev = (l.revenue || '').toLowerCase();
     const isLowRev = rev.includes('under') || rev.includes('25k') || rev.includes('250k') || rev.includes('<') || rev === '' || rev === 'unknown';
     const isHighRev = rev.includes('500k') || rev.includes('1m') || rev.includes('5m');
+
+    // HOT leads (< 3 days) of ANY industry auto-qualify so they land in
+    // the operator's default "Qualified" view immediately. Operator can
+    // still mark them Unqualified manually if they're junk. The point is
+    // freshness gets the benefit of the doubt — stale auto-rejection on
+    // a brand-new "other"-industry lead was hiding real opportunities.
+    if (temp === 'hot') {
+      l.status = 'qualified'; statusMap[l.id] = 'qualified'; changed = true;
+      return;
+    }
+
+    // Warm + cold leads use the original industry-based rules.
     if (ind === 'hvac' || ind === 'plumbing' || ind === 'electrical') {
       if (isLowRev && !isHighRev) { /* leave as pending - no signal to Meta */ return; }
       else { l.status = 'qualified'; statusMap[l.id] = 'qualified'; }
