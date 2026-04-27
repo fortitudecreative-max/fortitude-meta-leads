@@ -1,1 +1,5 @@
-{"buildCommand": "", "outputDirectory": ".", "framework": null}
+{
+  "buildCommand": "node scripts/upload-dashboard.mjs",
+  "outputDirectory": ".",
+  "framework": null
+}

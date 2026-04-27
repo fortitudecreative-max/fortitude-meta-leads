@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fortitude Leads Dashboard</title>
+<!-- No external dependencies needed - using Google Visualization API JSONP -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; margin: 0; color: #e2e8f0; }
+  .drop-zone { border: 2px dashed #cbd5e1; border-radius: 1rem; padding: 3rem; text-align: center; transition: all 0.2s; cursor: pointer; }
+  .drop-zone.drag-over { border-color: #3b82f6; background: #eff6ff; }
+  .drop-zone:hover { border-color: #94a3b8; }
+  .pill { display: inline-flex; align-items: center; padding: 0.4rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.15s; border: 1px solid #2a2a2a; background: #1a1a1a; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+  .pill:hover { background: #2a2a2a; color: #e2e8f0; }
+  .pill.active { background: #dc2626; color: white; border-color: #dc2626; }
+  .lead-card { background: #111111; border-radius: 1rem; border: 1px solid #2a2a2a; padding: 1.25rem; transition: all 0.15s; }
+  .lead-card:hover { box-shadow: 0 4px 16px rgba(220,38,38,0.1); border-color: #3a3a3a; }
+  .lead-card.qualified { border-color: #16a34a; }
+  .lead-card.unqualified { border-color: #991b1b; opacity: 0.5; }
+  .lead-card.booked { border-color: #3b82f6; }
+  .lead-card.won { border-color: #f59e0b; background: #111111; box-shadow: 0 0 12px rgba(245,158,11,0.15); }
+  .tag { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.03em; }
+  .tag-hvac { background: #16a34a22; color: #4ade80; border: 1px solid #16a34a44; }
+  .tag-plumbing { background: #2563eb22; color: #60a5fa; border: 1px solid #2563eb44; }
+  .tag-electrical { background: #d9770622; color: #fbbf24; border: 1px solid #d9770644; }
+  .tag-other { background: #ffffff11; color: #94a3b8; border: 1px solid #ffffff22; }
+  .score-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 700; }
+  .score-high { background: #16a34a22; color: #4ade80; }
+  .score-med { background: #d9770622; color: #fbbf24; }
+  .score-low { background: #dc262622; color: #f87171; }
+  .btn-qual { padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.15s; border: 1px solid; text-transform: uppercase; letter-spacing: 0.03em; }
+  .btn-qual-green { background: transparent; color: #16a34a; border-color: #16a34a; }
+  .btn-qual-green:hover { background: #16a34a; color: white; }
+  .btn-qual-green.active { background: #16a34a; color: white; }
+  .btn-qual-red { background: transparent; color: #dc2626; border-color: #dc2626; }
+  .btn-qual-red:hover { background: #dc2626; color: white; }
+  .btn-qual-red.active { background: #dc2626; color: white; }
+  .btn-qual-blue { background: transparent; color: #3b82f6; border-color: #3b82f6; }
+  .btn-qual-blue:hover { background: #3b82f6; color: white; }
+  .btn-qual-blue.active { background: #3b82f6; color: white; }
+  .btn-qual-gold { background: transparent; color: #f59e0b; border-color: #f59e0b; }
+  .btn-qual-gold:hover { background: #f59e0b; color: white; }
+  .btn-qual-gold.active { background: #f59e0b; color: white; }
+  
+  .info-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: #94a3b8; }
+  .info-row svg { width: 1rem; height: 1rem; color: #4a5568; flex-shrink: 0; }
+  .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 1rem; }
+  .search-input { width: 100%; max-width: 28rem; padding: 0.6rem 0.6rem 0.6rem 2.5rem; border-radius: 0.75rem; border: 1px solid #2a2a2a; font-size: 0.875rem; outline: none; background: #1a1a1a; color: #e2e8f0; }
+  .search-input:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,0.15); }
+  .hdr-btn { padding:0.4rem 0.65rem; border-radius:0.5rem; font-size:0.75rem; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.25rem; white-space:nowrap; transition:all 0.2s; }
+  .header { background: #0a0a0a; border-bottom: 2px solid #dc2626; padding: 1rem 1.5rem; position: sticky; top: 0; z-index: 10; }
+  .quick-actions { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 1rem; flex-wrap: wrap; background: #111111; border-radius: 0.75rem; border: 1px solid #2a2a2a; }
+  .quick-btn { padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: none; white-space: nowrap; }
+  .settings-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:50; align-items:center; justify-content:center; }
+  .settings-overlay.show { display:flex; }
+  .settings-modal { background:#111111; border:1px solid #2a2a2a; border-radius:1rem; padding:1.5rem; max-width:480px; width:90%; max-height:80vh; overflow-y:auto; }
+  .settings-modal h3 { margin:0 0 1rem; font-size:1rem; color:#ffffff; }
+  .settings-rule { display:flex; align-items:center; justify-content:space-between; padding:0.6rem 0; border-bottom:1px solid #1a1a1a; }
+  .settings-rule span { font-size:0.85rem; color:#e2e8f0; }
+  .settings-rule button { padding:0.35rem 0.75rem; border-radius:0.5rem; font-size:0.75rem; font-weight:600; cursor:pointer; border:1px solid; }
+  
+  .score-info-wrap { position:relative; display:inline-flex; align-items:center; padding:0.25rem; margin:-0.25rem; }
+  .score-info-icon { width:1rem; height:1rem; color:#93c5fd; cursor:help; }
+  .score-info-tip { display:none; position:absolute; top:100%; left:50%; transform:translateX(-50%); margin-top:0.5rem; padding:0.75rem; background:#1e293b; color:#e2e8f0; font-size:0.7rem; border-radius:0.5rem; width:220px; white-space:normal; z-index:30; box-shadow:0 4px 12px rgba(0,0,0,0.2); line-height:1.4; }
+  .score-info-wrap:hover .score-info-tip { display:block; }
+  
+  @media (max-width: 768px) {
+    .header { padding: 0.75rem 1rem; }
+    
+    
+    .grid-cards { grid-template-columns: 1fr !important; }
+    #stats-row { grid-template-columns: repeat(3, 1fr) !important; }
+    .quick-actions { gap: 0.4rem; }
+    .quick-btn { font-size: 0.65rem; padding: 0.3rem 0.5rem; }
+    .search-input { max-width: 100% !important; }
+  }
+  @media (max-width: 480px) {
+    
+    .lead-card { padding: 1rem; }
+    .lead-card .info-row { font-size: 0.75rem; }
+    .pill { font-size: 0.75rem; padding: 0.3rem 0.75rem; }
+  }
+  .guide-step { background: #1a1a1a; border-radius: 0.75rem; padding: 1rem; border: 1px solid #2a2a2a; margin-bottom: 0.75rem; color: #e2e8f0; }
+</style>
+</head>
+<body>
+
+<!-- Fortitude global style overrides to match Branding + Marketing -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { background:#0A0A0A !important; font-family:'Oswald',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif !important; color:#F5F5F5 !important; }
+  .fc-page-head { max-width:none; margin:0; padding:24px 32px 0; }
+  /* Stats cards forced to Branding KPI dimensions regardless of the inline
+     styles the renderStats function applies. !important beats inline. */
+  #stats-row { display:grid !important; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)) !important; gap:16px !important; margin-bottom:24px !important; }
+  .fc-stat-card { padding:20px !important; border-radius:12px !important; background:linear-gradient(180deg,#171717 0%,#0E0E0E 100%) !important; border:1px solid #2A2A2A !important; display:block !important; text-align:left !important; }
+  .fc-stat-icon { width:40px !important; height:40px !important; border-radius:8px !important; display:flex !important; align-items:center !important; justify-content:center !important; margin:0 0 12px 0 !important; font-family:'Oswald',sans-serif !important; font-size:20px !important; font-weight:700 !important; line-height:1 !important; }
+  .fc-stat-label { font-family:'Oswald',sans-serif !important; font-size:11px !important; font-weight:500 !important; letter-spacing:0.08em !important; text-transform:uppercase !important; color:#8A8A8A !important; margin:0 0 6px 0 !important; line-height:1.2 !important; }
+  .fc-stat-value { font-family:'Oswald',sans-serif !important; font-size:40px !important; font-weight:700 !important; line-height:1 !important; font-variant-numeric:tabular-nums !important; margin:0 !important; color:#fff; }
+  .fc-page-head-inner { display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:8px; margin-bottom:28px; }
+  .fc-eyebrow { font-family:'Oswald',sans-serif; font-size:11px; color:#8A8A8A; text-transform:uppercase; letter-spacing:0.12em; font-weight:500; }
+  .fc-title { font-family:'Oswald',sans-serif; font-size:30px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; margin:4px 0 0; color:#fff; line-height:1; }
+  .fc-date { font-family:'Oswald',sans-serif; font-size:13px; color:#8A8A8A; margin-top:4px; }
+  /* Container width + padding now match Branding / Marketing */
+  .fc-main { max-width:none !important; margin:0 !important; padding:0 32px 32px !important; }
+  /* Lead cards styled like the Marketing Clients card grid (Fortitude) */
+  #leads-grid, .grid-cards { display:grid !important; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)) !important; gap:16px !important; margin-bottom:24px !important; }
+  .lead-card { display:block !important; padding:20px !important; }
+  .fc-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; gap:8px; flex-wrap:wrap; }
+  .fc-card-name { font-family:'Oswald',sans-serif; font-size:16px; font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:0.04em; line-height:1.2; }
+  .fc-card-meta { display:flex; align-items:center; gap:8px; margin-top:4px; flex-wrap:wrap; }
+  .fc-card-date { font-family:'Oswald',sans-serif; font-size:12px; color:#666; text-transform:uppercase; letter-spacing:0.06em; }
+  .fc-card-contact { font-family:'Oswald',sans-serif; font-size:13px; color:#666; margin-bottom:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .fc-card-price { font-family:'Oswald',sans-serif; font-size:24px; font-weight:700; color:#fff; margin-bottom:14px; font-variant-numeric:tabular-nums; line-height:1; }
+  .fc-card-permonth { font-family:'Oswald',sans-serif; font-size:13px; color:#555; font-weight:400; margin-left:6px; text-transform:uppercase; letter-spacing:0.06em; }
+  .fc-card-fieldgrid { display:grid; grid-template-columns:minmax(0,1fr) minmax(100px,1fr); gap:8px; margin-bottom:14px; }
+  .fc-field { display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .fc-field-label { font-family:'Oswald',sans-serif; font-size:11px; color:#555; text-transform:uppercase; letter-spacing:0.06em; font-weight:500; }
+  .fc-field-value { font-family:'Oswald',sans-serif; font-size:13px; color:#ccc; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .fc-link { color:#D60000 !important; text-decoration:none; }
+  .fc-link:hover { text-decoration:underline; }
+  .fc-card-actions { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:6px; padding-top:12px; border-top:1px solid #222; }
+  .score-badge { font-family:'Oswald',sans-serif !important; padding:2px 8px !important; border-radius:3px !important; font-size:11px !important; font-weight:700 !important; text-transform:uppercase !important; letter-spacing:0.06em !important; }
+  .tag { font-family:'Oswald',sans-serif !important; padding:3px 8px !important; font-size:11px !important; font-weight:600 !important; border-radius:3px !important; letter-spacing:0.06em !important; }
+  /* Stat cards: gradient bg + line border + radius matching Branding */
+  #stats-row > div, #dashboard .stat-card, #filter-bar { background:linear-gradient(180deg,#171717 0%,#0E0E0E 100%) !important; border:1px solid #2A2A2A !important; border-radius:12px !important; color:#F5F5F5 !important; }
+  /* Lead cards: gradient + line border */
+  .lead-card { background:linear-gradient(180deg,#141414 0%,#0E0E0E 100%) !important; border:1px solid #2A2A2A !important; border-radius:12px !important; color:#F5F5F5 !important; }
+  .lead-card.qualified { border-color:#22C55E !important; }
+  .lead-card.unqualified { border-color:#3a0000 !important; }
+  .lead-card.booked { border-color:#2E8BEA !important; }
+  .lead-card.won { border-color:#F59E0B !important; }
+  /* Buttons styled like Branding's New Client / Backup */
+  .hdr-btn { font-family:'Oswald',sans-serif !important; text-transform:uppercase !important; letter-spacing:0.08em !important; font-weight:600 !important; font-size:13px !important; border-radius:4px !important; padding:10px 18px !important; height:auto !important; line-height:1.2 !important; display:inline-flex !important; align-items:center !important; gap:6px !important; }
+  .fc-page-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-left:auto; }
+  .fc-page-actions > div { display:flex !important; align-items:center !important; gap:8px !important; margin:0 !important; flex-wrap:wrap !important; }
+  .pill { font-family:'Oswald',sans-serif !important; text-transform:uppercase !important; letter-spacing:0.08em !important; }
+  .pill.active { background:#D60000 !important; color:#fff !important; border-color:#D60000 !important; }
+  /* Filter selects */
+  #industry-select, #status-select { font-family:'Oswald',sans-serif !important; background:#171717 !important; border:1px solid #2A2A2A !important; color:#ccc !important; border-radius:4px !important; padding:8px 12px !important; font-size:13px !important; }
+</style>
+
+<div class="fc-page-head">
+  <div class="fc-page-head-inner">
+    <div>
+      <div class="fc-eyebrow">Fortitude</div>
+      <h1 class="fc-title">Lead Dashboard</h1>
+      <div class="fc-date" id="fc-date-line"></div>
+    </div>
+    <div id="fc-page-actions" class="fc-page-actions"></div>
+  </div>
+</div>
+<script>
+(function(){try{var d=new Date();var s=d.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});var el=document.getElementById('fc-date-line');if(el)el.textContent=s;}catch(e){}})();
+(function(){function relocate(){try{var r=document.getElementById('refresh-btn');if(!r)return false;var row=r.parentElement;var slot=document.getElementById('fc-page-actions');if(!slot||!row||row===slot)return true;slot.appendChild(row);row.style.marginBottom='0';row.style.gap='8px';return true;}catch(e){return false;}}if(!relocate()){document.addEventListener('DOMContentLoaded',relocate);var tries=0,iv=setInterval(function(){if(relocate()||++tries>20)clearInterval(iv);},250);}})();
+</script>
+
+<div class="fc-main" style="max-width:1200px; margin:0 auto; padding:0 32px 32px;">
+
+<!-- LOADING STATE -->
+<div id="loading-state" style="text-align:center; padding:4rem 0;">
+  <div style="display:inline-flex; align-items:center; gap:0.75rem; padding:1rem 2rem; background:#111111; border-radius:1rem; border:1px solid #2a2a2a;">
+    <svg style="animation:spin 1s linear infinite; width:1.25rem; height:1.25rem; color:#2563eb;" fill="none" viewBox="0 0 24 24"><circle style="opacity:0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path style="opacity:0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>
+    <span style="color:#475569; font-weight:500;">Loading leads from Google Sheets...</span>
+  </div>
+</div>
+<style>@keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }</style>
+
+<!-- ERROR STATE (hidden) -->
+<div id="error-state" style="display:none; padding:1rem; background:#fef2f2; border-radius:0.75rem; border:1px solid #fecaca; margin-bottom:1.5rem;">
+  <div style="display:flex; align-items:center; gap:0.75rem;">
+    <svg style="width:1.25rem; height:1.25rem; color:#ef4444; flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <span id="error-msg" style="font-size:0.85rem; color:#991b1b;"></span>
+    <button onclick="fetchFromSheet()" style="margin-left:auto; padding:0.35rem 0.75rem; border-radius:0.5rem; font-size:0.75rem; font-weight:600; background:#fecaca; color:#991b1b; border:none; cursor:pointer;">Retry</button>
+  </div>
+</div>
+
+<!-- DASHBOARD (hidden until data loaded) -->
+<div id="dashboard" style="display:none;">
+
+<!-- Action Buttons -->
+<div style="display:flex; gap:0.35rem; margin-bottom:1rem;">
+  <button id="refresh-btn" onclick="const b=this,i=b.querySelector('.ref-icon'); b.style.transform='scale(0.92)'; b.style.opacity='0.55'; i.style.transition='transform 0.7s ease'; i.style.transform='rotate(360deg)'; const p=fetchFromSheet(); (p&&p.finally?p:Promise.resolve()).finally(()=>{setTimeout(()=>{b.style.transform=''; b.style.opacity=''; i.style.transition='none'; i.style.transform='rotate(0deg)';},350);});" class="hdr-btn" style="background:transparent; color:#16a34a; border:1px solid #16a34a; transition:transform 0.15s ease, opacity 0.15s ease;" title="Refresh"><span class="ref-icon" style="display:inline-block;">&#8635;</span> Refresh</button>
+  <button id="capi-send-btn" onclick="exportForMeta()" class="hdr-btn" style="background:#dc2626; color:white; border:none;">Send CAPI</button>
+  <button onclick="exportList()" class="hdr-btn" style="background:transparent; color:#aaa; border:1px solid #2a2a2a;" title="Export printable lead list"><svg style="width:1rem; height:1rem; vertical-align:-2px; margin-right:4px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-6h6v6m-3 2h9a2 2 0 002-2v-3a2 2 0 00-2-2H5a2 2 0 00-2 2v3a2 2 0 002 2h9zm-3-8h6m-9-4h12v4H6V7z"/></svg>Export List</button>
+  <button onclick="toggleSettings()" class="hdr-btn" style="background:transparent; color:#94a3b8; border:1px solid #2a2a2a;" title="Settings"><svg style="width:1rem; height:1rem; vertical-align:-2px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg> Settings</button>
+</div>
+
+
+
+<!-- Stats -->
+<div id="stats-row" style="display:grid; grid-template-columns:repeat(6,1fr); gap:0.75rem; margin-bottom:1rem;"></div>
+
+<!-- Filters -->
+<div id="filter-bar" style="display:flex; gap:0.5rem; margin-bottom:1rem; align-items:center;">
+  <select id="industry-select" onchange="setIndustry(this.value)" style="padding:0.5rem 0.75rem; border-radius:0.5rem; font-size:0.8rem; font-weight:600; background:#1a1a1a; color:#e2e8f0; border:1px solid #2a2a2a; outline:none; cursor:pointer;"></select>
+  <select id="status-select" onchange="setStatus(this.value)" style="padding:0.5rem 0.75rem; border-radius:0.5rem; font-size:0.8rem; font-weight:600; background:#1a1a1a; color:#e2e8f0; border:1px solid #2a2a2a; outline:none; cursor:pointer;"></select>
+</div>
+
+<!-- Settings Modal -->
+<div class="settings-overlay" id="settings-overlay" onclick="if(event.target===this)toggleSettings()">
+  <div class="settings-modal">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+      <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;"><svg style="width:1.2rem; height:1.2rem; color:#dc2626;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg> Lead Rules</h3>
+      <button onclick="toggleSettings()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:1.3rem;">&times;</button>
+    </div>
+    <p style="font-size:0.8rem; color:#94a3b8; margin:0 0 1rem;">These rules auto-classify new leads when they load. You can also run them manually below.</p>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;">
+      <div class="settings-rule"><span style="color:#4ade80;">HVAC &rarr; Qualified</span><button style="background:#16a34a22; color:#4ade80; border-color:#16a34a44;" onclick="bulkMark('hvac','qualified')">Run Now</button></div>
+      <div class="settings-rule"><span style="color:#4ade80;">Plumbing &rarr; Qualified</span><button style="background:#16a34a22; color:#4ade80; border-color:#16a34a44;" onclick="bulkMark('plumbing','qualified')">Run Now</button></div>
+      <div class="settings-rule"><span style="color:#4ade80;">Electrical &rarr; Qualified</span><button style="background:#16a34a22; color:#4ade80; border-color:#16a34a44;" onclick="bulkMark('electrical','qualified')">Run Now</button></div>
+      <div class="settings-rule"><span style="color:#f87171;">Other &rarr; Unqualified</span><button style="background:#dc262633; color:#f87171; border-color:#dc262666;" onclick="bulkMark('other','unqualified')">Run Now</button></div>
+      <div class="settings-rule"><span style="color:#fbbf24;">$250K &amp; Under &rarr; Pending (target industries) / Unqualified (other)</span><button style="background:#fbbf2422; color:#fbbf24; border-color:#fbbf2444;" onclick="bulkMarkLowRevenue()">Run Now</button></div>
+    </div>
+    <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid #2a2a2a;">
+      <h4 style="margin:0 0 0.75rem; font-size:0.9rem; color:#818cf8; display:flex; align-items:center; gap:0.4rem;"><svg style="width:1rem; height:1rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Meta CAPI Guide</h4>
+      <div class="guide-step" style="font-size:0.8rem;"><strong style="color:#818cf8;">Step 1:</strong> Use the Qualified/Unqualified buttons on each lead card. HVAC business owners = Qualified.</div>
+      <div class="guide-step" style="font-size:0.8rem;"><strong style="color:#818cf8;">Step 2:</strong> Click "Send CAPI" to push qualified, booked, and won leads to Meta as conversion events.</div>
+      <div class="guide-step" style="font-size:0.8rem;"><strong style="color:#818cf8;">Step 3:</strong> Meta receives: Qualified &rarr; Lead, Booked &rarr; Schedule, Won &rarr; Purchase, Unqualified &rarr; Bad.</div>
+      <div class="guide-step" style="font-size:0.8rem;"><strong style="color:#818cf8;">Step 4:</strong> In Ads Manager, switch optimization to "Conversion Leads." Meta optimizes for leads you actually care about.</div>
+      <div style="background:#1a1a2e; border-radius:0.75rem; padding:0.75rem; border:1px solid #312e81; margin-top:0.5rem;">
+        <strong style="color:#818cf8; font-size:0.8rem;">Why This Matters:</strong>
+        <span style="color:#94a3b8; font-size:0.8rem;"> Mark your leads to generate data, then Meta will stop showing ads to landscapers, restaurants, and handymen.</span>
+      </div>
+    </div>
+    <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid #2a2a2a;">
+      <button onclick="resetAll(); toggleSettings();" style="width:100%; padding:0.5rem; border-radius:0.5rem; font-size:0.8rem; font-weight:600; background:#1a1a1a; color:#94a3b8; border:1px solid #2a2a2a; cursor:pointer;">Reset All Classifications</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lead Cards Grid -->
+<div class="grid-cards" id="leads-grid"></div>
+<div id="empty-state" style="display:none; text-align:center; padding:4rem 0; color:#94a3b8;">
+  <svg style="width:3rem; height:3rem; margin:0 auto 1rem; color:#cbd5e1;" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+  <p style="font-size:1.1rem; font-weight:500;">No leads match your filters</p>
+  <p style="font-size:0.85rem; margin-top:0.25rem;">Try adjusting your search or filter criteria</p>
+</div>
+
+</div><!-- end dashboard -->
+</div>
+
+<!-- Footer -->
+<div style="border-top:1px solid #2a2a2a; background:#0a0a0a; margin-top:3rem; padding:1rem; text-align:center; font-size:0.75rem; color:#4a5568;">
+  Fortitude Creative &middot; HVAC Lead Management Dashboard &middot; Data from Google Sheets via Meta Lead Ads
+</div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const PROXY_URL = 'https://lnpgnjkkdjpkltevliiq.supabase.co/functions/v1/meta-leads-proxy';
+const SUPA_URL = 'https://lnpgnjkkdjpkltevliiq.supabase.co/rest/v1';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxucGduamtrZGpwa2x0ZXZsaWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxOTc4OTAsImV4cCI6MjA4ODc3Mzg5MH0.ZmullnWQk-EMNnZvi-APMkgT8FRM7lKTMMeR_XOQhww';
+const REFRESH_INTERVAL = 3 * 60 * 1000; // Auto-refresh every 3 minutes
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let allLeads = [];
+let statusMap = JSON.parse(localStorage.getItem('fortitude-status-map') || '{}');
+// Migrate: clear old-format keys (l:123...) from previous version
+if (Object.keys(statusMap).some(k => k.startsWith('l:'))) { statusMap = {}; localStorage.setItem('fortitude-status-map', '{}'); console.log('Cleared old-format lead keys'); }
+function saveStatus() {
+  localStorage.setItem('fortitude-status-map', JSON.stringify(statusMap));
+  // Sync every status to Supabase so the CAPI batch job can see them
+  const headers = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' };
+  const rows = Object.entries(statusMap).map(([k, v]) => ({ lead_key: k, status: v, updated_at: new Date().toISOString() }));
+  if (rows.length === 0) return;
+  fetch(SUPA_URL + '/lead_statuses', { method: 'POST', headers, body: JSON.stringify(rows) }).catch(e => console.warn('Status sync error:', e));
+}
+
+async function loadStatusesFromServer() {
+  try {
+    const headers = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY };
+    const res = await fetch(SUPA_URL + '/lead_statuses?select=lead_key,status', { headers });
+    if (res.ok) {
+      const rows = await res.json();
+      rows.forEach(r => { if (!statusMap[r.lead_key]) statusMap[r.lead_key] = r.status; });
+      localStorage.setItem('fortitude-status-map', JSON.stringify(statusMap));
+    }
+  } catch(e) { console.warn('Could not load server statuses:', e); }
+}
+let industryFilter = 'all';
+let statusFilter = 'all';
+
+// ─── COLUMN MAPPING ──────────────────────────────────────────────────────────
+function mapRow(row) {
+  // Find the right columns by checking multiple possible header names
+  const keys = Object.keys(row);
+  const find = (patterns) => {
+    for (const p of patterns) {
+      const k = keys.find(k => k.toLowerCase().includes(p.toLowerCase()));
+      if (k && row[k]) return row[k].trim();
+    }
+    return '';
+  };
+  // Exact match for 'id' column to avoid matching ad_id, adset_id, etc.
+  const rawPhone = find(['phone_number', 'phone']);
+  // Clean "p:+" prefix from phone numbers
+  const cleanPhone = rawPhone.replace(/^p:\+?/, '+').replace(/^\+\+/, '+');
+  const _name = find(['full_name', 'name']);
+  const _email = find(['email']);
+  // Build lead key same way as capi-batch Edge Function
+  const _leadKey = (_name + '_' + (_email || cleanPhone)).toLowerCase().replace(/[^a-z0-9]/g, '_');
+  return {
+    id: _leadKey || String(Math.random()),
+    created_time: find(['created_time', 'created']),
+    ad_name: find(['ad_name']),
+    campaign: find(['campaign_name']),
+    industry: (find(['industry', 'what_industry', 'business_in']) || 'other').toLowerCase(),
+    revenue: find(['revenue', 'gross_revenue', 'annual_gross']),
+    timeline: find(['how_soon', 'looking_to_make', 'timeline']),
+    website: find(['website_url', 'company_website', 'website']),
+    full_name: find(['full_name', 'name']),
+    phone: cleanPhone,
+    email: find(['email']),
+    company: find(['company_name', 'company']),
+    platform: find(['platform']) || 'fb',
+    status: 'pending'
+  };
+}
+
+// ─── SCORING ─────────────────────────────────────────────────────────────────
+function getLeadScore(lead) {
+  let score = 0;
+  if (lead.industry === 'hvac') score += 40;
+  else if (lead.industry === 'plumbing') score += 15;
+  else if (lead.industry === 'electrical') score += 10;
+
+  const rev = (lead.revenue || '').toLowerCase();
+  if (rev.includes('5m')) score += 30;
+  else if (rev.includes('1m')) score += 24;
+  else if (rev.includes('500k') && rev.includes('1m')) score += 18;
+  else if (rev.includes('250k') && rev.includes('500k')) score += 12;
+  else score += 6;
+
+  const tl = (lead.timeline || '').toLowerCase();
+  if (tl.includes('immediately') || tl.includes('ready')) score += 24;
+  else if (tl.includes('within') || tl.includes('30')) score += 16;
+  else if (tl.includes('1-3') || tl.includes('1_3')) score += 8;
+
+  if (lead.website && lead.website !== 'none' && lead.website.length > 2 && !lead.website.includes("don't")) score += 6;
+  return Math.min(score, 100);
+}
+
+// ─── LIVE DATA FETCHING (via Supabase Edge Function proxy) ───────────────────
+// The proxy fetches Google Sheets data server-side, so no CORS issues anywhere.
+
+function parseCSV(text) {
+  const lines = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '"') {
+      if (inQuotes && text[i+1] === '"') { current += '"'; i++; }
+      else inQuotes = !inQuotes;
+    } else if (ch === ',' && !inQuotes) {
+      lines.length === 0 ? (lines.push([current]), current = '') : (lines[lines.length-1].push(current), current = '');
+    } else if ((ch === '\n' || ch === '\r') && !inQuotes) {
+      if (current || (lines.length > 0 && lines[lines.length-1].length > 0)) {
+        if (lines.length === 0) lines.push([current]);
+        else lines[lines.length-1].push(current);
+        current = '';
+        lines.push([]);
+      }
+      if (ch === '\r' && text[i+1] === '\n') i++;
+    } else {
+      current += ch;
+    }
+  }
+  if (current) {
+    if (lines.length === 0) lines.push([current]);
+    else lines[lines.length-1].push(current);
+  }
+  if (lines.length > 0 && lines[lines.length-1].length === 1 && lines[lines.length-1][0] === '') lines.pop();
+
+  const headers = lines[0] || [];
+  return lines.slice(1).filter(r => r.length > 1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = (row[i] || '').trim(); });
+    return obj;
+  });
+}
+
+async function fetchFromSheet() {
+  try {
+    document.getElementById('error-state').style.display = 'none';
+    const response = await fetch(PROXY_URL);
+    if (!response.ok) throw new Error('Proxy returned HTTP ' + response.status);
+    const csvText = await response.text();
+    if (csvText.includes('<!DOCTYPE') || csvText.includes('<html')) throw new Error('Got HTML instead of CSV');
+    const rows = parseCSV(csvText);
+    if (rows.length === 0) throw new Error('No data rows found');
+
+    const newLeads = rows.map(mapRow).filter(l => { if (!l.full_name || l.full_name.trim() === '') return false; var vals = [l.full_name, l.email, l.phone, l.industry, l.revenue, l.timeline, l.website, l.company]; if (vals.some(function(v){ return v && /TEST LEAD:|DUMMY DATA FOR/i.test(v); })) return false; return true; });
+    await loadStatusesFromServer();
+    newLeads.forEach(l => { if (statusMap[l.id]) l.status = statusMap[l.id]; });
+    const prevCount = allLeads.length;
+    allLeads = newLeads;
+    autoClassify();
+    migrateLowRevTarget();
+
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('error-state').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+
+    const now = new Date().toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+    const newBadge = allLeads.length > prevCount && prevCount > 0
+      ? ` · <span style="color:#059669; font-weight:600;">${allLeads.length - prevCount} new!</span>` : '';
+    // subtitle removed
+    renderAll();
+  } catch (err) {
+    document.getElementById('loading-state').style.display = 'none';
+    if (allLeads.length === 0) {
+      document.getElementById('error-state').style.display = 'block';
+      document.getElementById('error-msg').textContent = 'Error: ' + err.message;
+    }
+    console.error('Fetch error:', err);
+  }
+}
+
+// Initial load + auto-refresh every 3 minutes
+fetchFromSheet();
+setInterval(fetchFromSheet, REFRESH_INTERVAL);
+
+// ─── FORMATTING ──────────────────────────────────────────────────────────────
+function fmt(s) { return (s || '').replace(/_/g, ' ').replace(/\$/g, '$'); }
+function fmtDate(d) {
+  if (!d) return '';
+  try { return new Date(d).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }); }
+  catch { return d; }
+}
+
+function formatPhone(p) { if (!p) return ''; var d = String(p).replace(/\D/g, ''); if (d.length === 11 && d[0] === '1') d = d.slice(1); if (d.length === 10) return '(' + d.slice(0,3) + ')\u00A0' + d.slice(3,6) + '-' + d.slice(6); return String(p); }
+
+// ─── RENDERING ───────────────────────────────────────────────────────────────
+function renderAll() {
+  renderStats();
+  renderFilters();
+  renderLeads();
+}
+
+function renderStats() {
+  const total = allLeads.length;
+  const qual = allLeads.filter(l => l.status === 'qualified').length;
+  const unqual = allLeads.filter(l => l.status === 'unqualified').length;
+  const pending = allLeads.filter(l => l.status === 'pending').length;
+  const won = allLeads.filter(l => l.status === 'won').length;
+  const avgScore = total > 0 ? Math.round(allLeads.reduce((s,l) => s + getLeadScore(l), 0) / total) : 0;
+  function card(icon, iconBg, iconColor, label, value, valueColor) {
+    return `<div class="fc-stat-card"><div class="fc-stat-icon" style="background:${iconBg}; color:${iconColor};">${icon}</div><div class="fc-stat-label">${label}</div><div class="fc-stat-value" style="color:${valueColor};">${value}</div></div>`;
+  }
+  document.getElementById('stats-row').innerHTML =
+    card('$',    'rgba(214,0,0,0.15)',    '#D60000', 'Total',       total,    '#fff') +
+    card('✓', 'rgba(34,197,94,0.15)',  '#22C55E', 'Qualified',   qual,     '#22C55E') +
+    card('×', 'rgba(239,68,68,0.15)',  '#F87171', 'Unqualified', unqual,   '#F87171') +
+    card('●', 'rgba(245,158,11,0.15)', '#F59E0B', 'Pending',     pending,  '#F59E0B') +
+    card('★', 'rgba(34,197,94,0.15)',  '#22C55E', 'Won',         won,      '#22C55E') +
+    card('◎', 'rgba(96,165,250,0.15)', '#60A5FA', 'Avg Score',   avgScore, '#fff');
+}
+
+function renderFilters() {
+  const total = allLeads.length;
+  const counts = {};
+  const sCounts = { qualified:0, unqualified:0, booked:0, won:0, pending:0 };
+  allLeads.forEach(l => {
+    counts[l.industry] = (counts[l.industry]||0) + 1;
+    if (sCounts[l.status] !== undefined) sCounts[l.status]++;
+  });
+
+  const industries = [
+    { key:'all', label:'All Industries', count:total },
+    { key:'hvac', label:'HVAC', count:counts.hvac||0 },
+    { key:'plumbing', label:'Plumbing', count:counts.plumbing||0 },
+    { key:'electrical', label:'Electrical', count:counts.electrical||0 },
+    { key:'other', label:'Other', count:counts.other||0 }
+  ];
+  document.getElementById('industry-select').innerHTML = industries.map(i =>
+    `<option value="${i.key}" ${industryFilter===i.key?'selected':''}>${i.label} (${i.count})</option>`
+  ).join('');
+
+  const statuses = [
+    { key:'all', label:'All Statuses', count:total },
+    { key:'qualified', label:'Qualified', count:sCounts.qualified },
+    { key:'unqualified', label:'Unqualified', count:sCounts.unqualified },
+    { key:'booked', label:'Booked', count:sCounts.booked },
+    { key:'won', label:'Won', count:sCounts.won },
+    { key:'pending', label:'Pending', count:sCounts.pending }
+  ];
+  document.getElementById('status-select').innerHTML = statuses.map(s =>
+    `<option value="${s.key}" ${statusFilter===s.key?'selected':''}>${s.label} (${s.count})</option>`
+  ).join('');
+}
+
+function renderLeads() {
+  let filtered = allLeads.filter(l => {
+    if (industryFilter !== 'all' && l.industry !== industryFilter) return false;
+    if (statusFilter !== 'all' && l.status !== statusFilter) return false;
+    return true;
+  });
+
+  // Auto-sort: highest score first
+  filtered.sort((a,b) => getLeadScore(b) - getLeadScore(a));
+
+  const grid = document.getElementById('leads-grid');
+  const empty = document.getElementById('empty-state');
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  grid.innerHTML = filtered.map((lead) => {
+    const idx = allLeads.indexOf(lead);
+    const score = getLeadScore(lead);
+    const ind = lead.industry || 'other';
+    const scoreCls = score >= 60 ? 'score-high' : score >= 30 ? 'score-med' : 'score-low';
+    const cardCls = lead.status === 'qualified' ? 'qualified' : lead.status === 'unqualified' ? 'unqualified' : lead.status === 'booked' ? 'booked' : lead.status === 'won' ? 'won' : '';
+
+    const websiteOk = lead.website && lead.website !== 'none' && lead.website.length > 2 && !lead.website.includes("don't");
+    const websiteUrl = websiteOk ? (lead.website.startsWith('http') ? lead.website : 'https://' + lead.website) : null;
+    return `<div class="lead-card ${cardCls}" id="card-${idx}">
+      <div class="fc-card-header">
+        <div class="fc-card-name">${lead.full_name || 'Unknown'}</div>
+      </div>
+      <div class="fc-card-meta" style="margin-bottom:10px;">
+        <span class="tag tag-${ind}">${ind.toUpperCase()}</span>
+        <span class="score-badge ${scoreCls}">Score ${score}</span>
+        <span class="fc-card-date">${fmtDate(lead.created_time)}</span>
+      </div>
+      ${lead.company ? `<div class="fc-card-contact">Company: ${lead.company}</div>` : ''}
+      <div class="fc-card-price">${fmt(lead.revenue) || '—'}<span class="fc-card-permonth">revenue</span></div>
+      <div class="fc-card-fieldgrid">
+        <div class="fc-field"><span class="fc-field-label">Email</span>${lead.email ? `<a href="mailto:${lead.email}" class="fc-field-value fc-link">${lead.email}</a>` : '<span class="fc-field-value">—</span>'}</div>
+        <div class="fc-field"><span class="fc-field-label">Phone</span>${lead.phone ? `<a href="tel:${lead.phone}" class="fc-field-value fc-link">${formatPhone(lead.phone)}</a>` : '<span class="fc-field-value">—</span>'}</div>
+        <div class="fc-field"><span class="fc-field-label">Timeline</span><span class="fc-field-value">${fmt(lead.timeline) || '—'}</span></div>
+        <div class="fc-field"><span class="fc-field-label">Website</span>${websiteOk ? `<a href="${websiteUrl}" target="_blank" rel="noreferrer" class="fc-field-value fc-link">${lead.website}</a>` : '<span class="fc-field-value">—</span>'}</div>
+      </div>
+      <div class="fc-card-actions">
+        <button class="btn-qual btn-qual-green ${lead.status==='qualified'?'active':''}" onclick="toggleStatus(${idx},'qualified')">Qualified</button>
+        <button class="btn-qual btn-qual-red ${lead.status==='unqualified'?'active':''}" onclick="toggleStatus(${idx},'unqualified')">Unqual</button>
+        <button class="btn-qual btn-qual-blue ${lead.status==='booked'?'active':''}" onclick="toggleStatus(${idx},'booked')">Booked</button>
+        <button class="btn-qual btn-qual-gold ${lead.status==='won'?'active':''}" onclick="toggleStatus(${idx},'won')">Won</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────────────────────
+function setIndustry(key) { industryFilter = key; renderFilters(); renderLeads(); }
+function setStatus(key) { statusFilter = key; renderFilters(); renderLeads(); }
+
+function toggleStatus(idx, newStatus) {
+  const lead = allLeads[idx];
+  if (lead.status === newStatus) {
+    // Toggling off: booked/won fall back to qualified, others to pending
+    lead.status = (newStatus === 'booked' || newStatus === 'won') ? 'qualified' : 'pending';
+  } else {
+    lead.status = newStatus;
+  }
+  if (lead.status === 'pending') delete statusMap[lead.id];
+  else statusMap[lead.id] = lead.status;
+  saveStatus();
+  renderFilters();
+  renderLeads();
+}
+
+function bulkMark(industry, status) {
+  allLeads.forEach(l => { if (l.industry === industry) { l.status = status; statusMap[l.id] = status; } });
+  saveStatus();
+  renderAll();
+}
+
+function bulkMarkLowRevenue() {
+  let count = 0;
+  const target = ['hvac','plumbing','electrical'];
+  allLeads.forEach(l => {
+    const rev = (l.revenue || '').toLowerCase();
+    const ind = (l.industry || 'other').toLowerCase();
+    const isLow = rev.includes('under') || rev.includes('25k') || rev.includes('250k') || rev.includes('<') || rev === '' || rev === 'unknown';
+    const isHigh = rev.includes('500k') || rev.includes('1m') || rev.includes('5m');
+    if (isLow && !isHigh) {
+      if (target.includes(ind)) { l.status = 'pending'; delete statusMap[l.id]; }
+      else { l.status = 'unqualified'; statusMap[l.id] = 'unqualified'; }
+      count++;
+    }
+  });
+  saveStatus();
+  renderAll();
+}
+
+function resetAll() {
+  allLeads.forEach(l => { l.status = 'pending'; });
+  statusMap = {};
+  saveStatus();
+  renderAll();
+}
+
+// Export a compact printable list of the CURRENTLY filtered + sorted leads.
+// Opens a new window with a minimalist print layout grouped by industry
+// (smallest footprint, easy to read on paper) and auto-triggers the
+// browser print dialog once the page is ready.
+function exportList() {
+  // Reuse the same filtering the main grid uses
+  var filtered = allLeads.filter(function(l){
+    if (industryFilter !== 'all' && l.industry !== industryFilter) return false;
+    if (statusFilter !== 'all' && l.status !== statusFilter) return false;
+    return true;
+  }).slice().sort(function(a,b){ return getLeadScore(b) - getLeadScore(a); });
+
+  // Group by industry
+  var groups = {};
+  filtered.forEach(function(l){
+    var key = (l.industry || 'other').toUpperCase();
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(l);
+  });
+  var industries = Object.keys(groups).sort();
+
+  var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+  var dateStr = new Date().toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+  var sections = industries.map(function(ind){
+    var rows = groups[ind].map(function(l){
+      var website = l.website && l.website !== 'none' && l.website.length > 2 && !l.website.includes("don't") ? l.website : '';
+      var statusLabel = (l.status || 'pending').toUpperCase();
+      return '<tr><td>' + esc(l.full_name || '—') + '</td>' +
+             '<td>' + esc(l.company || '') + '</td>' +
+             '<td>' + esc(l.email || '') + '</td>' +
+             '<td>' + esc(formatPhone(l.phone) || '') + '</td>' +
+             '<td>' + esc(website) + '</td>' +
+             '<td>' + esc(fmt(l.revenue) || '') + '</td>' +
+             '<td>' + esc(fmt(l.timeline) || '') + '</td>' +
+             '<td class="c">' + esc(getLeadScore(l)) + '</td>' +
+             '<td class="c s-' + (l.status || 'pending') + '">' + esc(statusLabel) + '</td></tr>';
+    }).join('');
+    return '<section><h2>' + esc(ind) + ' <span class="count">(' + groups[ind].length + ')</span></h2>' +
+           '<table><thead><tr><th>Name</th><th>Company</th><th>Email</th><th>Phone</th><th>Website</th><th>Revenue</th><th>Timeline</th><th class="c">Score</th><th class="c">Status</th></tr></thead><tbody>' + rows + '</tbody></table></section>';
+  }).join('');
+
+  var filterSummary = [];
+  if (industryFilter !== 'all') filterSummary.push('Industry: ' + industryFilter.toUpperCase());
+  if (statusFilter !== 'all') filterSummary.push('Status: ' + statusFilter.toUpperCase());
+  var summaryStr = filterSummary.length ? filterSummary.join(' · ') : 'All leads';
+
+  var doc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Fortitude Leads — ' + esc(dateStr) + '</title>' +
+    '<style>' +
+    '* { box-sizing: border-box; } ' +
+    'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; color: #000; background: #fff; margin: 24px; font-size: 10pt; } ' +
+    'h1 { font-family: "Oswald", sans-serif; font-size: 20pt; margin: 0; letter-spacing: 0.04em; text-transform: uppercase; } ' +
+    '.meta { color: #555; font-size: 9pt; margin-top: 2pt; margin-bottom: 14pt; } ' +
+    'h2 { font-family: "Oswald", sans-serif; font-size: 12pt; letter-spacing: 0.08em; text-transform: uppercase; color: #000; margin: 18pt 0 6pt; border-bottom: 2px solid #d60000; padding-bottom: 3pt; } ' +
+    'h2 .count { color: #888; font-weight: 400; font-size: 10pt; margin-left: 4pt; } ' +
+    'table { width: 100%; border-collapse: collapse; font-size: 9pt; } ' +
+    'th, td { padding: 4pt 6pt; text-align: left; vertical-align: top; border-bottom: 1px solid #ddd; } ' +
+    'th { background: #f2f2f2; font-weight: 600; text-transform: uppercase; font-size: 8pt; letter-spacing: 0.04em; color: #444; border-bottom: 1px solid #999; } ' +
+    'td.c, th.c { text-align: center; } ' +
+    'td:nth-child(4), th:nth-child(4) { white-space: nowrap; } ' +
+    'td.s-qualified { color: #047857; font-weight: 600; } ' +
+    'td.s-won { color: #b45309; font-weight: 700; } ' +
+    'td.s-booked { color: #1d4ed8; font-weight: 600; } ' +
+    'td.s-unqualified { color: #991b1b; } ' +
+    '.print-btn { position: fixed; top: 12px; right: 12px; padding: 8px 14px; background: #d60000; color: #fff; border: none; border-radius: 4px; font-family: "Oswald", sans-serif; font-size: 11pt; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; } ' +
+    '@media print { .print-btn { display: none; } body { margin: 12mm; } section { page-break-inside: avoid; } h2 { page-break-after: avoid; } } ' +
+    '</style></head><body>' +
+    '<button class="print-btn" onclick="window.print()">Print</button>' +
+    '<h1>Fortitude Leads</h1>' +
+    '<div class="meta">' + esc(dateStr) + ' &middot; ' + esc(summaryStr) + ' &middot; ' + filtered.length + ' lead' + (filtered.length === 1 ? '' : 's') + '</div>' +
+    (filtered.length ? sections : '<p style="color:#555;">No leads match the current filters.</p>') +
+    '<scr'+'ipt>window.onload = function(){ setTimeout(function(){ window.print(); }, 300); };</scr'+'ipt>' +
+    '</body></html>';
+
+  var w = window.open('', '_blank');
+  if (!w) { alert('Pop-up blocked. Allow pop-ups for this site to export.'); return; }
+  w.document.open();
+  w.document.write(doc);
+  w.document.close();
+}
+
+function toggleSettings() {
+  document.getElementById('settings-overlay').classList.toggle('show');
+}
+
+// Auto-classify pending leads based on rules
+function migrateLowRevTarget() {
+  const target = ['hvac','plumbing','electrical'];
+  const keysToDelete = [];
+  let changed = false;
+  allLeads.forEach(l => {
+    if (l.status !== 'unqualified') return;
+    const ind = (l.industry || 'other').toLowerCase();
+    if (!target.includes(ind)) return;
+    const rev = (l.revenue || '').toLowerCase();
+    const isLow = rev.includes('under') || rev.includes('25k') || rev.includes('250k') || rev.includes('<') || rev === '' || rev === 'unknown';
+    const isHigh = rev.includes('500k') || rev.includes('1m') || rev.includes('5m');
+    if (isLow && !isHigh) {
+      l.status = 'pending';
+      delete statusMap[l.id];
+      keysToDelete.push(l.id);
+      changed = true;
+    }
+  });
+  if (changed) {
+    saveStatus();
+    // Also delete from server so they don't reload as unqualified
+    const headers = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY };
+    keysToDelete.forEach(k => {
+      fetch(SUPA_URL + '/lead_statuses?lead_key=eq.' + encodeURIComponent(k), { method: 'DELETE', headers }).catch(e => console.warn('Delete error:', e));
+    });
+  }
+}
+
+function autoClassify() {
+  let changed = false;
+  allLeads.forEach(l => {
+    if (l.status !== 'pending') return;
+    const ind = l.industry || 'other';
+    const rev = (l.revenue || '').toLowerCase();
+    const isLowRev = rev.includes('under') || rev.includes('25k') || rev.includes('250k') || rev.includes('<') || rev === '' || rev === 'unknown';
+    const isHighRev = rev.includes('500k') || rev.includes('1m') || rev.includes('5m');
+    if (ind === 'hvac' || ind === 'plumbing' || ind === 'electrical') {
+      if (isLowRev && !isHighRev) { /* leave as pending - no signal to Meta */ return; }
+      else { l.status = 'qualified'; statusMap[l.id] = 'qualified'; }
+      changed = true;
+    } else if (ind === 'other') {
+      l.status = 'unqualified'; statusMap[l.id] = 'unqualified'; changed = true;
+    }
+  });
+  if (changed) saveStatus();
+}
+
+async function exportForMeta() {
+  const btn = document.getElementById('capi-send-btn');
+  const eligible = allLeads.filter(l => ['qualified','booked','won'].includes(l.status)).length;
+  if (eligible === 0) { alert('No leads to send. Mark leads as Qualified, Booked, or Won first.'); return; }
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  btn.style.opacity = '0.6';
+  try {
+    const res = await fetch('https://lnpgnjkkdjpkltevliiq.supabase.co/functions/v1/capi-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}'
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    const sent = data.sent || 0;
+    if (sent > 0) {
+      btn.textContent = sent + ' sent!';
+      btn.style.background = '#059669';
+    } else {
+      btn.textContent = 'All caught up';
+      btn.style.background = '#2563eb';
+    }
+    setTimeout(() => { btn.textContent = 'Send CAPI'; btn.style.background = '#dc2626'; btn.style.opacity = '1'; btn.disabled = false; }, 3000);
+  } catch (err) {
+    btn.textContent = 'Error!';
+    btn.style.background = '#991b1b';
+    console.error('CAPI send error:', err);
+    setTimeout(() => { btn.textContent = 'Send CAPI'; btn.style.background = '#dc2626'; btn.style.opacity = '1'; btn.disabled = false; }, 3000);
+  }
+}
+</script>
+</body>
+</html>
