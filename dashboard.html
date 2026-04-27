@@ -154,7 +154,7 @@
   .pill { font-family:'Oswald',sans-serif !important; text-transform:uppercase !important; letter-spacing:0.08em !important; }
   .pill.active { background:#D60000 !important; color:#fff !important; border-color:#D60000 !important; }
   /* Filter selects */
-  #industry-select, #status-select { font-family:'Oswald',sans-serif !important; background:#171717 !important; border:1px solid #2A2A2A !important; color:#ccc !important; border-radius:4px !important; padding:8px 12px !important; font-size:13px !important; }
+  #industry-select, #status-select, #temp-select { font-family:'Oswald',sans-serif !important; background:#171717 !important; border:1px solid #2A2A2A !important; color:#ccc !important; border-radius:4px !important; padding:8px 12px !important; font-size:13px !important; }
 </style>
 
 <div class="fc-page-head">
@@ -212,6 +212,7 @@
 <div id="filter-bar" style="display:flex; gap:0.5rem; margin-bottom:1rem; align-items:center;">
   <select id="industry-select" onchange="setIndustry(this.value)" style="padding:0.5rem 0.75rem; border-radius:0.5rem; font-size:0.8rem; font-weight:600; background:#1a1a1a; color:#e2e8f0; border:1px solid #2a2a2a; outline:none; cursor:pointer;"></select>
   <select id="status-select" onchange="setStatus(this.value)" style="padding:0.5rem 0.75rem; border-radius:0.5rem; font-size:0.8rem; font-weight:600; background:#1a1a1a; color:#e2e8f0; border:1px solid #2a2a2a; outline:none; cursor:pointer;"></select>
+  <select id="temp-select" onchange="setTemp(this.value)" style="padding:0.5rem 0.75rem; border-radius:0.5rem; font-size:0.8rem; font-weight:600; background:#1a1a1a; color:#e2e8f0; border:1px solid #2a2a2a; outline:none; cursor:pointer;"></select>
 </div>
 
 <!-- Settings Modal -->
@@ -299,6 +300,8 @@ let industryFilter = 'all';
 // to All / Pending / Won via the dropdown but they almost always want to see
 // the qualified pipeline first.
 let statusFilter = 'qualified';
+// Temperature filter — All / Hot (<3d) / Warm (3-7d) / Cold (>7d).
+let tempFilter = 'all';
 
 // ─── COLUMN MAPPING ──────────────────────────────────────────────────────────
 function mapRow(row) {
@@ -504,9 +507,11 @@ function renderFilters() {
   const total = allLeads.length;
   const counts = {};
   const sCounts = { qualified:0, unqualified:0, booked:0, won:0, pending:0 };
+  const tCounts = { hot:0, warm:0, cold:0 };
   allLeads.forEach(l => {
     counts[l.industry] = (counts[l.industry]||0) + 1;
     if (sCounts[l.status] !== undefined) sCounts[l.status]++;
+    tCounts[getLeadTemp(l)]++;
   });
 
   const industries = [
@@ -531,12 +536,23 @@ function renderFilters() {
   document.getElementById('status-select').innerHTML = statuses.map(s =>
     `<option value="${s.key}" ${statusFilter===s.key?'selected':''}>${s.label} (${s.count})</option>`
   ).join('');
+
+  const temps = [
+    { key:'all',  label:'All Temps',  count:total },
+    { key:'hot',  label:'Hot (<3d)',  count:tCounts.hot  },
+    { key:'warm', label:'Warm (3-7d)',count:tCounts.warm },
+    { key:'cold', label:'Cold (>7d)', count:tCounts.cold }
+  ];
+  document.getElementById('temp-select').innerHTML = temps.map(t =>
+    `<option value="${t.key}" ${tempFilter===t.key?'selected':''}>${t.label} (${t.count})</option>`
+  ).join('');
 }
 
 function renderLeads() {
   let filtered = allLeads.filter(l => {
     if (industryFilter !== 'all' && l.industry !== industryFilter) return false;
     if (statusFilter !== 'all' && l.status !== statusFilter) return false;
+    if (tempFilter !== 'all' && getLeadTemp(l) !== tempFilter) return false;
     return true;
   });
 
@@ -598,6 +614,7 @@ function renderLeads() {
 // ─── ACTIONS ─────────────────────────────────────────────────────────────────
 function setIndustry(key) { industryFilter = key; renderFilters(); renderLeads(); }
 function setStatus(key) { statusFilter = key; renderFilters(); renderLeads(); }
+function setTemp(key) { tempFilter = key; renderFilters(); renderLeads(); }
 
 function toggleStatus(idx, newStatus) {
   const lead = allLeads[idx];
