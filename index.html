@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fortitude Leads Dashboard</title>
+<title>Meta Leads Dashboard</title>
 <style>
 body{margin:0;background:#f8fafc;font-family:system-ui}
 #loading{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:1rem}
@@ -13,73 +13,15 @@ body{margin:0;background:#f8fafc;font-family:system-ui}
 </style>
 </head>
 <body>
-<div id="loading"><div class="spinner"></div><p style="color:#64748b">Loading Fortitude Leads Dashboard...</p></div>
+<div id="loading"><div class="spinner"></div><p style="color:#64748b">Loading Meta Leads Dashboard...</p></div>
 <div id="err"><p id="errmsg"></p><button onclick="loadDash()" style="margin-top:1rem;padding:0.5rem 1rem;border-radius:0.5rem;border:1px solid #e2e8f0;cursor:pointer">Retry</button></div>
 <script>
-// Fortitude shared header — identical across Leads, Branding, Marketing, SEO, PPC.
-// Static HTML version for the Leads bootloader (no React here). Injected into the
-// dashboard HTML returned from Supabase before document.write.
-//
-// Mobile layout: logo on the LEFT, hamburger on the RIGHT. The mobile drawer
-// opens from the right edge and contains the section nav.
+// Central Fortitude Family header.
+// Central Fortitude Family header for the Meta Leads bootloader.
+// Injected into dashboard HTML returned from Supabase before document.write.
 var SHARED_HEADER_HTML = [
-  '<style>',
-  '  .fc-shared-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 24px;height:128px;border-bottom:1px solid #2A2A2A;background:#111;position:sticky;top:0;z-index:30;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;box-sizing:border-box}',
-  '  .fc-shared-header *{box-sizing:border-box}',
-  '  .fc-shared-header .fc-left{display:flex;align-items:center;gap:32px;min-width:0}',
-  '  .fc-shared-header .fc-burger{display:none;width:40px;height:40px;border-radius:4px;background:#171717;border:1px solid #2A2A2A;color:#8A8A8A;cursor:pointer;align-items:center;justify-content:center;flex-shrink:0}',
-  '  .fc-shared-header .fc-logo{height:110px;width:auto;display:block}',
-  '  .fc-shared-header .fc-nav{display:flex;align-items:center;gap:32px}',
-  '  .fc-shared-header .fc-nav a{position:relative;padding:6px 2px;font-size:14px;font-weight:600;letter-spacing:.04em;color:#8A8A8A;text-decoration:none;transition:color .15s ease}',
-  '  .fc-shared-header .fc-nav a:hover{color:#F5F5F5}',
-  '  .fc-shared-header .fc-nav a.fc-active{color:#F5F5F5}',
-  '  .fc-shared-header .fc-nav a.fc-active::after{content:"";position:absolute;left:0;right:0;bottom:-10px;height:2px;background:#D60000}',
-  '  .fc-shared-header .fc-right{display:flex;align-items:center;gap:12px;flex-shrink:0}',
-  '  .fc-mobile-menu{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:40}',
-  '  .fc-mobile-menu.open{display:block}',
-  '  .fc-mobile-menu-panel{position:absolute;right:0;top:0;bottom:0;width:288px;background:#111;border-left:1px solid #2A2A2A;padding:16px 8px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}',
-  '  .fc-mobile-menu-panel .fc-mhead{display:flex;align-items:center;justify-content:space-between;padding:0 12px 12px;border-bottom:1px solid #2A2A2A;margin-bottom:8px}',
-  '  .fc-mobile-menu-panel .fc-mhead span{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8A8A8A}',
-  '  .fc-mobile-menu-panel .fc-mhead button{background:transparent;border:none;color:#8A8A8A;font-size:24px;cursor:pointer;padding:4px}',
-  '  .fc-mobile-menu-panel .fc-mlabel{padding:0 12px;font-size:10px;font-weight:700;letter-spacing:.12em;color:#8A8A8A;margin-bottom:8px}',
-  '  .fc-mobile-menu-panel a{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:4px;font-size:15px;font-weight:600;letter-spacing:.04em;color:#8A8A8A;text-decoration:none}',
-  '  .fc-mobile-menu-panel a.fc-active{color:#F5F5F5;background:rgba(214,0,0,.15);box-shadow:inset 3px 0 0 #D60000}',
-  '  .fc-mobile-menu-panel a.fc-active .fc-current{font-size:10px;color:#D60000;font-weight:700}',
-  '  @media (max-width:1023px){',
-  '    .fc-shared-header{height:80px;padding:0 12px;gap:12px}',
-  '    .fc-shared-header .fc-burger{display:flex}',
-  '    .fc-shared-header .fc-logo{height:64px}',
-  '    .fc-shared-header .fc-nav{display:none}',
-  '  }',
-  '</style>',
-  '<header class="fc-shared-header">',
-  '  <div class="fc-left">',
-  '    <a href="https://admin.fortitudecreative.com" style="display:flex;align-items:center;flex-shrink:0"><img src="https://fortitudecreative.com/wp-content/uploads/2025/04/Fortitude-Logo32.svg" alt="Fortitude Creative" class="fc-logo"/></a>',
-  '    <nav class="fc-nav">',
-  '      <a href="https://leads.fortitudecreative.com" class="fc-active">LEADS</a>',
-  '      <a href="https://branding.fortitudecreative.com">BRANDING</a>',
-  '      <a href="https://marketing.fortitudecreative.com">MARKETING</a>',
-  '      <a href="https://seo.fortitudecreative.com">SEO</a>',
-  '      <a href="https://ppc.fortitudecreative.com">PPC</a>',
-  '    </nav>',
-  '  </div>',
-  '  <div class="fc-right">',
-  '    <button class="fc-burger" aria-label="Open menu" onclick="document.getElementById(\'fcMobileMenu\').classList.add(\'open\')">',
-  '      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
-  '    </button>',
-  '  </div>',
-  '</header>',
-  '<div id="fcMobileMenu" class="fc-mobile-menu" onclick="this.classList.remove(\'open\')">',
-  '  <div class="fc-mobile-menu-panel" onclick="event.stopPropagation()">',
-  '    <div class="fc-mhead"><span>Menu</span><button onclick="document.getElementById(\'fcMobileMenu\').classList.remove(\'open\')">\u00D7</button></div>',
-  '    <div class="fc-mlabel">SECTIONS</div>',
-  '    <a href="https://leads.fortitudecreative.com" class="fc-active">LEADS<span class="fc-current">CURRENT</span></a>',
-  '    <a href="https://branding.fortitudecreative.com">BRANDING</a>',
-  '    <a href="https://marketing.fortitudecreative.com">MARKETING</a>',
-  '    <a href="https://seo.fortitudecreative.com">SEO</a>',
-  '    <a href="https://ppc.fortitudecreative.com">PPC</a>',
-  '  </div>',
-  '</div>'
+  '<div data-fortitude-family-header data-active-app="Meta Leads" data-logo-href="https://fortitudecreative.com/"></div>',
+  '<script src="https://jv2.fortitudecreative.com/shared/fortitude-family-header.js"></' + 'script>'
 ].join('\n');
 
 function loadDash(){
@@ -89,9 +31,11 @@ fetch('https://lnpgnjkkdjpkltevliiq.supabase.co/rest/v1/dashboard_pages?id=eq.me
 headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxucGduamtrZGpwa2x0ZXZsaWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxOTc4OTAsImV4cCI6MjA4ODc3Mzg5MH0.ZmullnWQk-EMNnZvi-APMkgT8FRM7lKTMMeR_XOQhww'}
 }).then(r=>r.json()).then(d=>{
   var dashHtml = d[0].html;
-  // Inject the shared header at the top of the dashboard's <body>
-  var injected = dashHtml.replace(/<body([^>]*)>/i, '<body$1>' + SHARED_HEADER_HTML);
-  if (injected === dashHtml) injected = SHARED_HEADER_HTML + dashHtml;
+  // Inject the shared header at the top of the dashboard's <body>.
+  var injected = /data-fortitude-family-header/.test(dashHtml)
+    ? dashHtml
+    : dashHtml.replace(/<body([^>]*)>/i, '<body$1>' + SHARED_HEADER_HTML);
+  if (injected === dashHtml && !/data-fortitude-family-header/.test(dashHtml)) injected = SHARED_HEADER_HTML + dashHtml;
   document.open();
   document.write(injected);
   document.close();
