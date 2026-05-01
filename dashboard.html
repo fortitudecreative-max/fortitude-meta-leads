@@ -304,7 +304,10 @@ function saveStatus() {
   localStorage.setItem('fortitude-status-map', JSON.stringify(statusMap));
   // Sync every status to Supabase so the CAPI batch job can see them
   const headers = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' };
-  const rows = Object.entries(statusMap).map(([k, v]) => ({ lead_key: k, status: v, updated_at: new Date().toISOString() }));
+  // Filter out 'pending' rows — lead_statuses CHECK constraint rejects them.
+  const rows = Object.entries(statusMap)
+    .filter(([, v]) => v !== 'pending')
+    .map(([k, v]) => ({ lead_key: k, status: v, updated_at: new Date().toISOString() }));
   if (rows.length === 0) return;
   fetch(SUPA_URL + '/lead_statuses', { method: 'POST', headers, body: JSON.stringify(rows) }).catch(e => console.warn('Status sync error:', e));
 }
