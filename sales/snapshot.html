@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prospect Snapshot · Fortitude Sales Kit</title>
+<link rel="stylesheet" href="sales.css">
+<script src="kit.js" defer></script>
+<style>
+  .split { display: grid; gap: 1rem; grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr); align-items: start; }
+  @media (max-width: 1000px) { .split { grid-template-columns: 1fr; } }
+  .sc { display: grid; grid-template-columns: 1fr 70px; gap: 0.4rem; align-items: center; margin-bottom: 0.35rem; font-size: 0.9rem; }
+  .sc select { padding: 0.3rem; }
+  .leak { border: 1px solid var(--line); border-radius: 10px; padding: 0.75rem; margin-bottom: 0.75rem; }
+  .warnbox { display: none; } .warnbox.on { display: block; }
+
+  /* Paper preview */
+  .paper { background: #fff; color: #111; border-radius: 10px; padding: 2rem 2.2rem; font-size: 0.92rem; position: sticky; top: 4rem; max-height: calc(100vh - 5rem); overflow: auto; }
+  .paper h1, .paper h2, .paper h3 { color: #111; }
+  .paper h1 { font-size: 1.6rem; margin-bottom: 0.1rem; }
+  .paper h2 { font-size: 1rem; margin: 1.4rem 0 0.5rem; border-bottom: 2px solid #dc2626; padding-bottom: 0.2rem; }
+  .paper .meta { color: #555; font-size: 0.82rem; }
+  .paper table { font-size: 0.85rem; }
+  .paper th { background: #f3f4f6; color: #444; }
+  .paper th, .paper td { border-color: #e5e7eb; }
+  .paper .table-wrap { border-color: #e5e7eb; }
+  .paper .bar { height: 10px; background: #eee; border-radius: 999px; overflow: hidden; margin: 0.35rem 0 0.8rem; }
+  .paper .bar i { display: block; height: 100%; background: #dc2626; }
+  .paper .scoregrid { display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 1rem; font-size: 0.85rem; }
+  .paper .scoregrid .z { color: #dc2626; font-weight: 700; }
+  .paper .leakcard { border-left: 3px solid #dc2626; background: #fafafa; padding: 0.55rem 0.8rem; margin: 0.5rem 0; }
+  .paper .leakcard b { display: block; }
+  .paper .cat { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #dc2626; }
+  .paper .foot { margin-top: 1.5rem; font-size: 0.75rem; color: #777; border-top: 1px solid #eee; padding-top: 0.6rem; }
+  @media print {
+    .split { display: block; }
+    .editor { display: none !important; }
+    .paper { position: static; max-height: none; overflow: visible; padding: 0; border-radius: 0; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="no-print">
+    <h1>Prospect Snapshot</h1>
+    <p class="lede">Send this 24 hours before Call 2. It shows enough to prove you did the work (two or three specific findings, the trust score, three leaks) and holds back the answer.</p>
+    <div class="toolbar"><button type="button" data-action="print">Print / save PDF</button><button type="button" class="ghost" data-action="clear">Clear</button></div>
+  </div>
+
+  <div class="split">
+    <form class="editor" data-persist onsubmit="return false">
+      <div class="card">
+        <h3 style="margin-top:0">Basics</h3>
+        <div class="row">
+          <div class="field"><label>Company</label><input type="text" name="co"></div>
+          <div class="field"><label>Owner first name</label><input type="text" name="owner"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Trade</label><input type="text" name="trade" placeholder="HVAC"></div>
+          <div class="field"><label>Market (city / ZIPs)</label><input type="text" name="market"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Prepared by</label><input type="text" name="rep"></div>
+          <div class="field"><label>Call 2 date</label><input type="date" name="callDate"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-top:0">Google Business Profile: them vs. top competitor</h3>
+        <div class="row">
+          <div class="field"><label>Their rating</label><input type="number" name="gR" step="0.1" min="0" max="5"></div>
+          <div class="field"><label>Their review count</label><input type="number" name="gN" min="0"></div>
+          <div class="field"><label>Reviews, last 90 days</label><input type="number" name="g90" min="0"></div>
+          <div class="field"><label>Owner response rate %</label><input type="number" name="gResp" min="0" max="100"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Competitor name</label><input type="text" name="cName"></div>
+          <div class="field"><label>Competitor rating</label><input type="number" name="cR" step="0.1" min="0" max="5"></div>
+          <div class="field"><label>Competitor reviews</label><input type="number" name="cN" min="0"></div>
+          <div class="field"><label>Competitor 90-day reviews</label><input type="number" name="c90" min="0"></div>
+        </div>
+        <h3>Website</h3>
+        <div class="row">
+          <div class="field"><label>Mobile load time (s)</label><input type="number" name="wSpeed" step="0.1" min="0"></div>
+          <div class="field"><label>Click-to-call above the fold?</label><select name="wCall"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+        </div>
+        <div class="field"><label>Above-the-fold read (one line, factual)</label><input type="text" name="wFold" placeholder='Headline says "Quality since 1998"; no mention of emergency response time'></div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-top:0">Trust Signal Scorecard (1–5)</h3>
+        <div id="scoreInputs"></div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-top:0">Three leaks, exactly three</h3>
+        <p class="def" style="font-size:0.8rem;color:var(--faint)">More than three makes it feel unfixable. Name the leak and the evidence. Never the fix.</p>
+        <div id="leakInputs"></div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-top:0">Proof findings (2–3)</h3>
+        <p class="def" style="font-size:0.8rem;color:var(--faint)">Specific and countable: "Your top competitor has 14 reviews about surprise pricing."</p>
+        <div class="field"><input type="text" name="f1"></div>
+        <div class="field"><input type="text" name="f2"></div>
+        <div class="field"><input type="text" name="f3"></div>
+      </div>
+
+      <div class="callout rule warnbox" id="guard"></div>
+
+      <div class="card" style="margin-top:1rem;border-style:dashed">
+        <h3 style="margin-top:0">Internal only (not printed)</h3>
+        <div class="field"><label>Opening observation for Call 2</label><input type="text" name="open"></div>
+        <div class="field"><label>Primary leak category</label><select name="primary"><option value="">—</option><option>Trust</option><option>Message</option><option>Capture</option><option>Economics</option></select></div>
+        <div class="field"><label>Top 3 opportunities (keep these to yourself until they pay)</label><textarea name="opps"></textarea></div>
+        <h4 style="margin-top:1rem">Before Call 1 · 10 min</h4>
+        <label class="check"><input type="checkbox" name="r1"> Site speed, mobile UX, above-fold clarity</label>
+        <label class="check"><input type="checkbox" name="r2"> GBP rating, count, recency, owner response rate</label>
+        <label class="check"><input type="checkbox" name="r3"> One competitor comparison</label>
+        <label class="check"><input type="checkbox" name="r4"> One specific observation to open with</label>
+        <h4 style="margin-top:1rem">After a qualified Call 1 · 45–60 min</h4>
+        <label class="check"><input type="checkbox" name="r5"> SEMrush: organic visibility, paid presence, competitor dominance</label>
+        <label class="check"><input type="checkbox" name="r6"> Map pack for "[service] [city]": who ranks, review counts, LSA badges</label>
+        <label class="check"><input type="checkbox" name="r7"> Competitor review mining, sorted into categories (no-shows, surprise pricing, rude techs)</label>
+        <label class="check"><input type="checkbox" name="r8"> ZIP demographics: median home age, household income, owner-occupancy</label>
+        <label class="check"><input type="checkbox" name="r9"> Trust Signal Scorecard complete</label>
+        <label class="check"><input type="checkbox" name="r10"> Top 3 holes, top 3 opportunities, primary leak</label>
+      </div>
+    </form>
+
+    <article class="paper" id="paper"></article>
+  </div>
+</main>
+
+<script>
+(function () {
+  var ITEMS = ["Brand consistency", "Visual professionalism", "Review credibility", "Website clarity", "Mobile experience", "Call-to-action strength", "Proof & guarantees", "Local relevance", "Technician photos", "Truck & vehicle alignment"];
+  var si = document.getElementById("scoreInputs");
+  si.innerHTML = ITEMS.map(function (t, i) {
+    return '<div class="sc"><span>' + t + '</span><select name="s' + i + '"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>';
+  }).join("");
+  var li = document.getElementById("leakInputs");
+  li.innerHTML = [1, 2, 3].map(function (n) {
+    return '<div class="leak"><div class="row"><div class="field"><label>Leak ' + n + ' type</label><select name="l' + n + 'c"><option value="">—</option><option>Trust gap</option><option>Message gap</option><option>Capture gap</option><option>Economics gap</option></select></div></div>' +
+      '<div class="field"><label>Headline</label><input type="text" name="l' + n + 'h" placeholder="' + ["Trust gap vs. map-pack competitors", "Site doesn't answer the emergency question", "Missed calls in peak season"][n - 1] + '"></div>' +
+      '<div class="field"><label>Evidence</label><textarea name="l' + n + 'e" placeholder="' + ["You have 41 reviews; the three map-pack leaders average 380.", "Homepage leads with ‘quality since 1998’; nothing on response time.", "Call tracking shows ~15 unanswered calls a week in July."][n - 1] + '"></textarea></div></div>';
+  }).join("");
+
+  var GUARD = [/position(ing)?\b/i, /tag ?line/i, /slogan/i, /brand story/i, /messag(e|ing) hierarchy/i, /you should own/i, /\bown the\b/i, /colou?r palette/i, /logo (concept|direction|idea)/i, /\bfont\b/i, /white ?space/i];
+
+  function v(n) { var e = document.querySelector('[name="' + n + '"]'); return e ? e.value.trim() : ""; }
+  function esc(s) { return s.replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function n(x) { return x === "" ? "—" : esc(x); }
+
+  function render() {
+    var co = v("co") || "[Company]";
+    var date = v("callDate") ? new Date(v("callDate") + "T12:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) : "[call date]";
+    var h = "";
+    h += '<div class="meta">PROSPECT SNAPSHOT' + (v("owner") ? " · PREPARED FOR " + esc(v("owner").toUpperCase()) : "") + "</div>";
+    h += "<h1>" + esc(co) + "</h1>";
+    h += '<div class="meta">' + [v("trade"), v("market")].filter(Boolean).map(esc).join(" · ") + (v("rep") ? " · Prepared by " + esc(v("rep")) + ", Fortitude Creative" : "") + "</div>";
+    h += "<p style=\"margin-top:1rem\">Ahead of our call on <b>" + esc(date) + "</b>, here's what a homeowner sees when they look you up, and where we think the traffic you already pay for is leaking.</p>";
+
+    h += "<h2>How you show up on Google</h2>";
+    h += '<div class="table-wrap"><table><tr><th></th><th>' + esc(co) + "</th><th>" + n(v("cName") || "Top competitor") + "</th></tr>";
+    h += "<tr><td>Rating</td><td>" + n(v("gR")) + "</td><td>" + n(v("cR")) + "</td></tr>";
+    h += "<tr><td>Total reviews</td><td>" + n(v("gN")) + "</td><td>" + n(v("cN")) + "</td></tr>";
+    h += "<tr><td>Reviews, last 90 days</td><td>" + n(v("g90")) + "</td><td>" + n(v("c90")) + "</td></tr>";
+    h += "<tr><td>Owner replies to reviews</td><td>" + (v("gResp") ? esc(v("gResp")) + "%" : "—") + "</td><td>—</td></tr></table></div>";
+    if (v("wSpeed") || v("wCall") || v("wFold")) {
+      h += "<p><b>Website:</b> " + [v("wSpeed") ? "loads in " + esc(v("wSpeed")) + "s on mobile" : "", v("wCall") ? "click-to-call above the fold: " + esc(v("wCall").toLowerCase()) : ""].filter(Boolean).join("; ") + (v("wFold") ? ". " + esc(v("wFold")) : "") + "</p>";
+    }
+
+    var scores = ITEMS.map(function (t, i) { return v("s" + i); });
+    var filled = scores.filter(Boolean).map(Number);
+    h += "<h2>Trust Signal Scorecard</h2>";
+    if (filled.length) {
+      var total = filled.reduce(function (a, b) { return a + b; }, 0), max = filled.length * 5;
+      h += "<p><b style=\"font-size:1.3rem\">" + total + " / " + max + "</b> across " + filled.length + " trust signals homeowners use to decide who to call.</p>";
+      h += '<div class="bar"><i style="width:' + Math.round((total / max) * 100) + '%"></i></div><div class="scoregrid">';
+      ITEMS.forEach(function (t, i) { if (scores[i]) h += "<span>" + t + '</span><span class="' + (Number(scores[i]) <= 2 ? "z" : "") + '">' + scores[i] + " / 5</span>"; });
+      h += "</div>";
+    } else h += '<p class="meta">Score each signal on the left.</p>';
+
+    h += "<h2>Three leaks we'll walk through</h2>";
+    [1, 2, 3].forEach(function (k) {
+      if (!v("l" + k + "h")) return;
+      h += '<div class="leakcard">' + (v("l" + k + "c") ? '<span class="cat">' + esc(v("l" + k + "c")) + "</span>" : "") + "<b>" + esc(v("l" + k + "h")) + "</b>" + (v("l" + k + "e") ? esc(v("l" + k + "e")) : "") + "</div>";
+    });
+    var fs = ["f1", "f2", "f3"].map(v).filter(Boolean);
+    if (fs.length) { h += "<h2>What we found in your market</h2><ul>" + fs.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>"; }
+
+    h += "<h2>On our call</h2><ol><li>Check we heard your goals right</li><li>Walk the scorecard</li><li>Run the economics on <i>your</i> numbers: cost per booked job and cost per customer</li><li>What fixing these three leaks looks like, and what it costs</li></ol>";
+    h += "<p>It helps if everyone involved in the decision can join.</p>";
+    h += '<div class="foot">Prepared by Fortitude Creative from public data (Google Business Profile, website, map-pack results) on ' + new Date().toLocaleDateString("en-US") + ". Findings, not recommendations.</div>";
+    document.getElementById("paper").innerHTML = h;
+
+    // Disclosure guard on prospect-facing text
+    var text = ["wFold", "l1h", "l1e", "l2h", "l2e", "l3h", "l3e", "f1", "f2", "f3"].map(v).join(" \n ");
+    var hits = GUARD.filter(function (re) { return re.test(text); }).map(function (re) { return (text.match(re) || [""])[0]; });
+    var leaks = [1, 2, 3].filter(function (k) { return v("l" + k + "h"); }).length;
+    var g = document.getElementById("guard"), msgs = [];
+    if (hits.length) msgs.push("<b>Disclosure check:</b> “" + hits.map(esc).join("”, “") + "” reads like the answer. Before payment, never give away the positioning, the brand story, the messaging hierarchy, the white-space conclusion or any visual direction. Name the leak, not the fix.");
+    if (fs.length > 3) msgs.push("Keep it to 2–3 findings.");
+    if (leaks && leaks < 3) msgs.push("Name exactly three leaks. You have " + leaks + ".");
+    g.className = "callout rule warnbox" + (msgs.length ? " on" : "");
+    g.innerHTML = msgs.join("<br>");
+  }
+
+  document.addEventListener("input", render);
+  document.addEventListener("change", render);
+  document.addEventListener("kit:ready", render);
+})();
+</script>
+</body>
+</html>

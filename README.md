@@ -29,6 +29,13 @@ to send conversion events to Meta CAPI.
   current `dashboard_pages.html` row into `dashboard_pages_backup`, then PATCHes
   the live row with the new contents of `dashboard.html`.
 - `vercel.json` — wires the upload script to Vercel's `buildCommand`.
+- `sales/` — **the Fortitude Sales Kit**, served as static pages at
+  `leads.fortitudecreative.com/sales/` behind the same auth gate. Start at
+  `sales/index.html`. Pages: Playbook, Deal Router (qualification + offer
+  routing), Prospect Snapshot builder, Economics Calculator (with the
+  benchmark locking rule), printable Field Card, and the Measurement
+  Definitions sheet. Plain HTML/CSS/JS, no build step; anything a rep types is
+  kept only in their own browser (localStorage).
 
 ## Editing the dashboard
 

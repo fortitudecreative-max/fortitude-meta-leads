@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Measurement Definitions · Fortitude Sales Kit</title>
+<link rel="stylesheet" href="sales.css">
+<script src="kit.js" defer></script>
+<style>
+  .sig { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem; }
+  @media (max-width: 640px) { .sig { grid-template-columns: 1fr; } }
+  .sig div { border-top: 1px solid var(--muted); padding-top: 0.3rem; font-size: 0.8rem; color: var(--muted); }
+  td input { min-width: 6rem; }
+</style>
+</head>
+<body>
+<main class="wrap narrow" data-persist>
+  <div class="no-print">
+    <h1>Measurement Definitions</h1>
+    <p class="lede">Signed at kickoff. If we don't agree up front on what a lead, a booking and a close are, nobody can prove anything in month three, and that's how the last agency lost them.</p>
+    <div class="toolbar"><button type="button" data-action="print">Print / PDF</button><button type="button" class="ghost" data-action="clear">Clear</button></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Measurement Definitions Agreement</h2>
+    <div class="row">
+      <div class="field"><label>Client</label><input type="text" name="client"></div>
+      <div class="field"><label>Kickoff date</label><input type="date" name="kick"></div>
+    </div>
+    <p>Fortitude Creative and the client agree to measure the engagement with the definitions below, from the same data sources, before and after launch.</p>
+
+    <div class="table-wrap"><table>
+      <tr><th style="width:22%">Term</th><th>Definition</th><th style="width:24%">Source of truth</th></tr>
+      <tr><td><b>Lead</b></td><td>Any inbound phone call over <input type="number" name="sec" value="60" style="width:4.5rem;display:inline-block"> seconds, form submission, chat or LSA message from a unique contact within a 7-day window.</td><td><input type="text" name="srcLead" placeholder="Call tracking / CRM"></td></tr>
+      <tr><td><b>Junk</b></td><td>A lead that is spam, a job seeker, a vendor or solicitor, outside the service area, or for a service the client doesn't offer.</td><td><input type="text" name="srcJunk" placeholder="CSR disposition"></td></tr>
+      <tr><td><b>Real lead</b></td><td>Lead − junk.</td><td>—</td></tr>
+      <tr><td><b>Booking rate</b></td><td>Appointments set ÷ real leads.</td><td><input type="text" name="srcBook" placeholder="Dispatch / FSM"></td></tr>
+      <tr><td><b>Close rate</b></td><td>Jobs sold ÷ appointments <i>run</i> (cancellations and no-shows excluded from the denominator and tracked separately).</td><td><input type="text" name="srcClose" placeholder="FSM / invoices"></td></tr>
+      <tr><td><b>Cost per booked job</b></td><td>Marketing spend in the period ÷ appointments set from paid sources.</td><td>—</td></tr>
+      <tr><td><b>Cost per acquired customer</b></td><td>Marketing spend in the period ÷ new customers with a sold job.</td><td>—</td></tr>
+      <tr><td><b>Missed-call rate</b></td><td>Inbound calls not answered by a person within <input type="number" name="rings" value="4" style="width:4rem;display:inline-block"> rings, and not returned within 15 minutes ÷ all inbound calls.</td><td><input type="text" name="srcMiss" placeholder="Phone system"></td></tr>
+    </table></div>
+
+    <h3>Baseline</h3>
+    <p>Measured over the <input type="number" name="days" value="90" style="width:4.5rem;display:inline-block"> days before kickoff, using the sources above.</p>
+    <div class="row">
+      <div class="field"><label>Real leads / mo</label><input type="text" name="bLeads"></div>
+      <div class="field"><label>Booking rate</label><input type="text" name="bBook"></div>
+      <div class="field"><label>Close rate</label><input type="text" name="bClose"></div>
+      <div class="field"><label>Cost per booked job</label><input type="text" name="bCpbj"></div>
+      <div class="field"><label>Missed-call rate</label><input type="text" name="bMiss"></div>
+    </div>
+
+    <h3>What else changes</h3>
+    <p style="font-size:0.9rem;color:var(--muted)">List anything else that will change during the engagement (new CSR, price change, new service line, ad budget change), so results are attributed honestly.</p>
+    <textarea name="other"></textarea>
+
+    <p style="font-size:0.85rem;color:var(--muted);margin-top:1rem">These definitions describe how results are measured. They are not a guarantee of any booking rate, lead count, revenue or ranking.</p>
+
+    <div class="sig">
+      <div>Client signature · date</div>
+      <div>Fortitude Creative · date</div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

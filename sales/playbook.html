@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Playbook · Fortitude Sales Kit</title>
+<link rel="stylesheet" href="sales.css">
+<script src="kit.js" defer></script>
+<style>
+  .layout { display: grid; grid-template-columns: 230px 1fr; gap: 2rem; align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .toc { position: static !important; max-height: none !important; } }
+  .toc { position: sticky; top: 4rem; max-height: calc(100vh - 5rem); overflow: auto; font-size: 0.85rem; }
+  .toc a { display: block; color: var(--muted); text-decoration: none; padding: 0.2rem 0.5rem; border-left: 2px solid transparent; }
+  .toc a:hover { color: var(--text); border-left-color: var(--accent); }
+  .toc .grp { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.1em; color: var(--faint); text-transform: uppercase; margin: 0.9rem 0 0.2rem 0.5rem; }
+  section { scroll-margin-top: 4.5rem; }
+  section > h2:first-child { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+  .obj { border: 1px solid var(--line); border-radius: 10px; margin: 0.6rem 0; background: var(--panel); }
+  .obj > .q { padding: 0.75rem 1rem; font-weight: 700; color: #fff; cursor: pointer; display: flex; justify-content: space-between; gap: 1rem; }
+  .obj > .q::after { content: "+"; color: var(--accent); font-weight: 800; }
+  .obj.open > .q::after { content: "−"; }
+  .obj > .a { padding: 0 1rem 0.8rem; display: none; }
+  .obj.open > .a { display: block; }
+  body:not(.drill) .obj > .a { display: block; }
+  body:not(.drill) .obj > .q { cursor: default; }
+  body:not(.drill) .obj > .q::after { content: ""; }
+  ol.qs li { margin: 0.4rem 0; }
+  ol.qs li small { color: var(--faint); display: block; }
+  .search { max-width: 340px; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>The Fortitude Creative Sales Playbook</h1>
+  <p class="lede">A sales system that starts with the diagnosis. Founder authority transfers through artifacts, not personality, so Taylor and Layla can get the same results without improvising. Brand and marketing are one pipeline. Strategy comes before visuals. Trust affects conversion at every stage.</p>
+  <div class="toolbar no-print">
+    <input class="search" type="text" id="q" placeholder="Search the playbook…" aria-label="Search the playbook">
+    <button type="button" class="ghost" id="drillBtn">Objection drill mode: off</button>
+    <button type="button" class="ghost" data-action="print">Print</button>
+  </div>
+
+  <div class="layout">
+    <nav class="toc no-print" id="toc"></nav>
+    <div id="content">
+
+<section id="positioning">
+  <h2>Core positioning (memorize this)</h2>
+  <blockquote class="script">Most home service companies buy branding and marketing as separate things: a logo from one guy, a site from another, ads from a third. Nothing compounds. We start with research on who lives in your ZIP codes, what they're worried about, what your competitors already own in their minds, and what's left for you. That becomes the strategy. The strategy becomes the brand. The brand goes on everything a homeowner or a tech sees: trucks, site, Google, ads, recruiting. The point isn't looking nicer. It's that more of the traffic you already pay for turns into booked, closed, profitable work.</blockquote>
+  <div class="chain"><span>Market</span><i>→</i><span>Positioning</span><i>→</i><span>Brand</span><i>→</i><span>Trust</span><i>→</i><span>Conversion</span><i>→</i><span>Booking</span><i>→</i><span>Close</span><i>→</i><span>Revenue</span></div>
+</section>
+
+<section id="qualify">
+  <h2>Qualification gate</h2>
+  <p>Run it in the <a href="router.html">Deal Router</a>. There are three outcomes: <span class="pill green">Fit</span> <span class="pill amber">Ops gate: capture first</span> <span class="pill red">Disqualify</span></p>
+  <div class="grid two">
+    <div class="card">
+      <h3 style="margin-top:0">Best-fit signals</h3>
+      <ul>
+        <li>Revenue $750K–$10M+. Set the floor from the last 15 closed deals, not by assumption.</li>
+        <li>3+ trucks, or a clear growth plan</li>
+        <li>Decision-maker on the call, with authority</li>
+        <li>Pain with a specific deadline attached</li>
+        <li>Spending on marketing now, or ready to</li>
+        <li>Operationally ready: phones answered, CSRs scripted, capacity for more leads</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Disqualify</h3>
+      <ul>
+        <li>Only wants "a cheap logo"</li>
+        <li>Expects guaranteed lead counts</li>
+        <li>Shopping purely on price</li>
+        <li>Too small with no growth plan</li>
+      </ul>
+      <h3>Ops gate (route to capture first)</h3>
+      <ul>
+        <li>Missed-call rate &gt;15%</li>
+        <li>Google rating &lt;4.2 with &lt;15 reviews in the last 90 days</li>
+        <li>No documented CSR scripting</li>
+        <li>No review-generation system</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout fix"><p>The directive listed the four ops items as disqualifiers. It also said, under Operational Readiness, to sell those same shops a capture fix and schedule the brand later. Both can't be true, so they're split here. Ops failures mean <b>not yet</b>. Fit failures mean <b>no</b>.</p></div>
+  <p><b>When you disqualify, say it out loud.</b></p>
+  <blockquote class="script">At your size, I'd spend that money on a CSR and a service van before hiring us.</blockquote>
+  <p>That sentence gets more referrals than any close.</p>
+</section>
+
+<section id="research">
+  <h2>Pre-call research (time-boxed)</h2>
+  <div class="grid two">
+    <div class="card">
+      <span class="kicker">Before Call 1 · 10 minutes</span>
+      <ul>
+        <li>Website speed, mobile UX, above-fold clarity</li>
+        <li>Google Business Profile: rating, review count, recency, owner response rate</li>
+        <li>One competitor comparison (review count, brand quality)</li>
+        <li>One specific observation to open with</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="kicker">After a qualified Call 1 · 45–60 minutes</span>
+      <ul>
+        <li>SEMrush: organic visibility, paid presence, competitor dominance</li>
+        <li>Map pack: who ranks for "AC repair [city]", their review counts, LSA badges</li>
+        <li>Competitor review mining: sort negative reviews into categories (no-shows, surprise pricing, rude techs)</li>
+        <li>ZIP demographics: median home age, household income, owner-occupancy rate</li>
+        <li>Trust Signal Scorecard (1–5 each): brand consistency, visual professionalism, review credibility, website clarity, mobile UX, CTA strength, proof/guarantees, local relevance, technician photos, truck alignment</li>
+        <li>Top 3 holes, top 3 opportunities, primary leak category</li>
+      </ul>
+    </div>
+  </div>
+  <p>For a paid audit or after the sale, the full research <i>becomes the deliverable</i>. The output of the 45–60 minutes is the <a href="snapshot.html">Prospect Snapshot</a>.</p>
+</section>
+
+<section id="call1">
+  <h2>Call 1: Discovery (20–30 min)</h2>
+  <div class="callout rule"><p><b>Rule:</b> No teaching until you have three numbers: spend or cost per lead, booking rate, and close rate. Ticket mix is the fourth. <b>Talk ratio:</b> the prospect talks 60%+ of the time, you talk 40% or less.</p></div>
+  <h3>Required questions, in order</h3>
+  <ol class="qs">
+    <li>What made you reach out now?</li>
+    <li>Where do jobs come from today: repeat/referral, paid, or organic?</li>
+    <li>What do you spend on marketing monthly, and do you know your cost per lead or cost per booked job?</li>
+    <li>What's your service ticket? Install ticket? Roughly what percent are installs?</li>
+    <li>What's your booking rate? <small>Define it: appointments set ÷ real leads, junk removed.</small></li>
+    <li>What's your close rate?</li>
+    <li>What's your gross margin, if you know it?</li>
+    <li>What percentage of service customers turn into a replacement within two years? Do you sell memberships?</li>
+    <li>When the phone rings during a job and nobody picks up, what happens to that call?</li>
+    <li>How many techs are you running, and how hard is hiring right now?</li>
+    <li>What did you try before that didn't work, and why do you think it didn't? <small>Persona tell: "hired an agency" = delegator; "did it ourselves" = controller.</small></li>
+    <li>Who else is involved in a decision like this?</li>
+    <li>What's your timeline: this quarter or next year?</li>
+  </ol>
+  <p><b>To close Call 1:</b> read their situation back in their own words. Only book Call 2 with the secondary decision-maker on the calendar invite.</p>
+</section>
+
+<section id="call2">
+  <h2>Call 2: Diagnosis (45 min)</h2>
+  <p>Send the <a href="snapshot.html">Prospect Snapshot</a> 24 hours before.</p>
+  <div class="table-wrap"><table>
+    <tr><th>Block</th><th>Time</th><th>What happens</th></tr>
+    <tr><td>Mirror</td><td>3 min</td><td>"Last time you told me you want to get to [goal], and the frustration is [problem]. Still accurate?"</td></tr>
+    <tr><td>Trust Score walkthrough</td><td>5 min</td><td>Walk the 10-signal scorecard. Let the low scores speak.</td></tr>
+    <tr><td>Three leaks only</td><td>15 min</td><td>Name exactly three. More makes it feel unfixable. <i>Trust gap</i> vs. map-pack competitors. <i>Message gap</i>: the site says "quality since 1998" but doesn't address emergency response time. <i>Capture gap</i>: 15 missed calls a week in season.</td></tr>
+    <tr><td>Economics</td><td>10 min</td><td>Run the <a href="calculator.html">calculator</a> on their numbers. Label every assumption.</td></tr>
+    <tr><td>Plan and relief</td><td>10 min</td><td>Present the solution with the <a href="#persona">persona framing</a>.</td></tr>
+    <tr><td>Proof</td><td>3 min</td><td>One case study that matches their leak.</td></tr>
+    <tr><td>Investment</td><td>3 min</td><td>State the price confidently. Then stop talking.</td></tr>
+  </table></div>
+  <blockquote class="script">Does this feel like the right direction for where you want to take the business?</blockquote>
+  <p>Then offer two dated options for kickoff.</p>
+  <div class="callout fix"><p>The directive said "12-point audit" here but listed 10 scorecard items. This guide uses the 10. If there are two more signals, add them to the scorecard in the Snapshot tool.</p></div>
+  <div class="callout"><p><b>Interim:</b> the founder joins Call 2 for the market findings and positioning segment until reps are certified.</p></div>
+</section>
+
+<section id="single">
+  <h2>Single-call exception</h2>
+  <p>Every one of these must be true:</p>
+  <ul>
+    <li>Every decision-maker is present</li>
+    <li>The prospect states ≥4 funnel numbers unprompted</li>
+    <li>The prospect asks for price or a start date</li>
+    <li>You have a 10-minute snapshot with two specific holes named</li>
+    <li>Production has confirmed a kickoff window</li>
+  </ul>
+  <p>Even on a compressed call, <b>don't</b> hand over the positioning answer, the brand story or a DIY manual.</p>
+</section>
+
+<section id="economics">
+  <h2>The economics calculator</h2>
+  <p>Open the <a href="calculator.html">calculator</a>. Tag every input as <i>theirs</i>, <i>estimated</i> or <i>benchmark</i>.</p>
+  <div class="grid two">
+    <div class="card">
+      <h3 style="margin-top:0">Inputs</h3>
+      <ul>
+        <li>Monthly ad spend</li>
+        <li>CPC <i>or</i> cost per lead (never invent both)</li>
+        <li>Junk rate: spam, job seekers, wrong area</li>
+        <li>Booking rate = appointments set ÷ real leads</li>
+        <li>Close rate = jobs sold ÷ appointments run</li>
+        <li>Service ticket, install ticket, service/install mix</li>
+        <li>Gross margin (if known)</li>
+        <li><i>Optional lifetime:</i> replacement rate, replacement ticket, membership rate, membership value</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Outputs</h3>
+      <ul>
+        <li>Cost per real lead</li>
+        <li>Cost per booked job</li>
+        <li>Cost per acquired customer</li>
+        <li>First-job contribution, labeled on screen: <i>"First job only. Doesn't include replacement, membership or referral revenue. This doesn't mean the channel loses money."</i></li>
+        <li>Lifetime view (only when the lifetime fields are filled): expected gross profit per customer, contribution after acquisition, profit per ad dollar</li>
+        <li>Scenario block, stamped <i>"Assumption, not a forecast"</i>, plus a 3×3 booking × close sensitivity grid</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout rule">
+    <p><b>Locking rule.</b> If more than 2 core inputs are benchmarks, the dollar-outcome cells lock. Untagged inputs count as benchmarks. You can show the structure but not quote a monthly figure. Call review fails any recording where locked cells were talked around.</p>
+    <p><b>CPC rule.</b> The post-click rates are the expensive leak. Never promise "we'll save you $50 a click." If month-three CPC is $48 and the booking rate moved, the engagement succeeded.</p>
+  </div>
+</section>
+
+<section id="framing">
+  <h2>Customer value framing</h2>
+  <p>Don't default to "you're losing money on every job." Experienced owners run thin first-job contribution on purpose. The service call is the door. The replacement is the business.</p>
+  <p><b>When first-job contribution is negative and the lifetime fields are empty:</b> don't moralize. Ask:</p>
+  <blockquote class="script">That's if a customer is only ever worth one ticket. You know that's not true. What's a customer worth to you over three years?</blockquote>
+  <p>Let the owner supply the number. A number they give you is a number they believe.</p>
+  <div class="table-wrap"><table>
+    <tr><th>If…</th><th>Use</th><th>Sounds like</th></tr>
+    <tr><td>Their own lifetime number still shows acquisition cost &gt; customer gross profit</td><td><span class="pill red">Bleed</span></td><td>"You're buying jobs at a loss."</td></tr>
+    <tr><td>Profitable</td><td><span class="pill green">Opportunity</span></td><td>"You're leaving $X/month on the table because [leak]."</td></tr>
+  </table></div>
+  <p>Default to opportunity for fit buyers. <i>Opportunity is a compliment with a price. Bleed is an insult with a price.</i></p>
+</section>
+
+<section id="persona">
+  <h2>Persona routing: delegator vs. controller</h2>
+  <div class="grid two">
+    <div class="card">
+      <span class="kicker">Delegator signals</span>
+      <ul><li>"We hired an agency, they couldn't run it"</li><li>Has a bookkeeper, thinks in hours</li><li>Says "we" about the company</li></ul>
+      <blockquote class="script">Here's everything that has to go right. We own almost all of it. Your part is a kickoff, two review rounds, and approvals within five business days, starting [production-confirmed date].</blockquote>
+    </div>
+    <div class="card">
+      <span class="kicker">Controller signals</span>
+      <ul><li>"I did it myself but got busy"</li><li>Still quotes their own jobs</li><li>Says "I" about the company</li></ul>
+      <blockquote class="script">You built this company. You could absolutely build this pipeline. The piece owners in your position usually skip is the competitive and housing-stock research. That's what decides whether the mark is ownable or just another blue wrench. Here's what getting that piece wrong costs per month on the numbers we just ran. You approve the positioning before a single sketch. Nothing goes on a truck you didn't sign.</blockquote>
+    </div>
+  </div>
+  <p>If you can't identify the persona, don't use either close. Book the next meeting.</p>
+</section>
+
+<section id="routing">
+  <h2>Offer routing</h2>
+  <p><b>Never present all the offers as a menu.</b> Route by discovery signal.</p>
+  <div class="table-wrap"><table>
+    <tr><th>Discovery signal</th><th>Recommend</th></tr>
+    <tr><td>Heavy spend, flat results</td><td>Full brand engagement</td></tr>
+    <tr><td>"Calls come in but don't book"</td><td>Full brand (with a CSR note), or capture fix first</td></tr>
+    <tr><td>"Techs lose on price"</td><td>Full brand engagement</td></tr>
+    <tr><td>"We can't hire"</td><td>Full brand (lead with recruiting math)</td></tr>
+    <tr><td>Planning an exit or a partner</td><td>Full brand (lead with valuation)</td></tr>
+    <tr><td>"Tweak my AI logo" / "Not sure I need a brand" / controller</td><td>Paid Audit</td></tr>
+    <tr><td>Needs leads this month</td><td>Tier 0 Capture Fix</td></tr>
+    <tr><td>Phones unanswered, recent no-show reviews</td><td>Capture fix first, brand scheduled</td></tr>
+    <tr><td>Too small, no growth plan</td><td>Honest disqualification</td></tr>
+  </table></div>
+</section>
+
+<section id="offers">
+  <h2>Offer specifications</h2>
+  <div class="grid two">
+    <div class="card"><span class="kicker">Tier 0 · ~$3,500</span><h3 style="margin-top:0.3rem">Capture Fix</h3>
+      <p><b>Scope:</b> GBP overhaul, review engine, service-area landing pages, call tracking, LSA setup. <b>Excludes:</b> logo, identity, truck wraps.</p>
+      <blockquote class="script">This buys leads while trust is still weak, so cost per lead stays expensive on purpose. We're doing this so the brand system can be built in the shoulder season.</blockquote>
+      <p>The fee credits 100% toward a full brand signed within [founder-set window]. The SOW states what stays broken if they don't upgrade. It's a separate proposal, never a chip to discount the core package.</p>
+    </div>
+    <div class="card"><span class="kicker">$1,500–$3,000</span><h3 style="margin-top:0.3rem">Paid Audit</h3>
+      <p><b>Scope:</b> ZIP research, competitor review mining, trust score, what the current mark fails to answer, and the questions the strategy has to resolve.</p>
+      <p><b>Does NOT include:</b> the positioning answer, the brand story, the messaging hierarchy.</p>
+      <p>The fee credits 100% toward a full brand signed within 30 days. Route "tweak my AI logo", "not sure I need a brand" and controllers who want to see the thinking here.</p>
+    </div>
+    <div class="card"><span class="kicker">~$10,500</span><h3 style="margin-top:0.3rem">Brand Foundation</h3><p>Market research, brand strategy, positioning, visual identity, brand system, rollout guidelines. For ops-ready shops that look like everyone else.</p></div>
+    <div class="card"><span class="kicker">Brand Foundation + site</span><h3 style="margin-top:0.3rem">Brand + Web</h3><p>Brand Foundation plus a full site build. For shops where the site is the bottleneck.</p></div>
+    <div class="card"><span class="kicker">Brand + Web + retainer</span><h3 style="margin-top:0.3rem">Brand + Growth Partnership</h3><p>Brand + Web plus a monthly marketing retainer. For $3M+ shops in growth mode.</p></div>
+    <div class="card"><span class="kicker">Every proposal</span><h3 style="margin-top:0.3rem">Includes</h3><p>Scope, timeline, price, payment terms (50/50 or a three-payment split), and a kickoff date confirmed by production.</p></div>
+  </div>
+  <div class="callout todo"><p>Tier 0 is called a <i>capture</i> fix, but its scope is mostly lead <i>generation</i> (LSA, landing pages, GBP). The shops routed to it are the ones that miss calls and have no CSR scripting, and more leads into unanswered phones makes the leak worse. Decide whether Tier 0 includes real capture work (missed-call text-back, answering-service setup, a CSR booking script, call-tracking review) or rename it. Also set the credit window.</p></div>
+</section>
+
+<section id="guarantee">
+  <h2>Risk reversal: Strategy Checkpoint Guarantee</h2>
+  <p><b>No booking-rate, revenue, lead-count or ranking guarantees.</b> Booking rate depends on CSRs and dispatch, which Fortitude doesn't control.</p>
+  <blockquote class="script">If, at the end of Phase 1 (Market Research + Brand Strategy), you don't sign off on a written, ZIP-specific positioning statement that reflects your business, your customers' pain points, and your competitors' weaknesses, you owe nothing, and you keep the full research dossier.</blockquote>
+  <div class="callout rule"><p>This only works if the research deliverable is genuinely valuable on its own. No hedging, and no "teaser" content held back. If we can't deliver that, the guarantee is theater.</p></div>
+</section>
+
+<section id="disclosure">
+  <h2>Disclosure policy</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Give freely</th><th>Show partially (as proof)</th><th>Never before payment</th></tr>
+    <tr><td>The process map and why the order matters</td><td>2–3 specific findings ("Your top competitor has 14 reviews about surprise pricing")</td><td>The positioning answer: which pain to own</td></tr>
+    <tr><td>The economics model on their numbers</td><td>The trust score and where they lose points</td><td>The brand story and messaging hierarchy</td></tr>
+    <tr><td>What breaks and why it compounds</td><td>One relevant case study</td><td>The demographic synthesis and white-space conclusion</td></tr>
+    <tr><td></td><td></td><td>Any visual direction</td></tr>
+  </table></div>
+  <p>The Snapshot tool flags prospect-facing text that reads like the answer.</p>
+</section>
+
+<section id="ai">
+  <h2>AI / Fiverr objection</h2>
+  <p><b>Concede first.</b></p>
+  <blockquote class="script">AI's fine for a mood board. Keep what you like as a reference.</blockquote>
+  <p><b>Then apply the commercial test.</b></p>
+  <blockquote class="script">What AI can't know is what your three competitors already own in [city], what a 30-year-old housing stock means for what homeowners fear, and which promise nobody's claiming. Design is the small part. Research and consistent rollout across every touchpoint is the expensive part. A generic mark doesn't fail because it's ugly. It fails because it's forgettable, and forgettable means you compete on price.</blockquote>
+  <div class="grid two">
+    <div class="callout rule"><p><b>Never say:</b></p><ul><li>"AI looks cheap"</li><li>"You won't own your logo"</li><li>"You can't trademark an AI logo"</li></ul></div>
+    <div class="callout"><p><b>Legal accuracy (keep it narrow):</b></p><ul><li>Purely AI-generated images have weaker copyright protection</li><li>Lookalike risk is real, because models are trained on existing marks</li><li>Many AI files aren't true vectors and may not print on wraps</li><li>"Ask your attorney about copyright and lookalike risk before this goes on ten trucks."</li></ul></div>
+  </div>
+</section>
+
+<section id="competitors">
+  <h2>Competitor positioning</h2>
+  <h3>KickCharge (premium tier)</h3>
+  <blockquote class="script">Comparable full-scope brand engagements from national specialists commonly run $20K+. Here's our scope next to theirs.</blockquote>
+  <p>Use this as a floor anchor only. Verify the pricing quarterly. Never claim "same exact work."</p>
+  <div class="callout todo">
+    <p><b>Why is Fortitude's price lower?</b> The guide can't invent this. The founder supplies one true sentence. Options:</p>
+    <ul>
+      <li>"We're pricing to earn our first ten case studies. This pricing ends after client #10." (Only if true, with a real clock.)</li>
+      <li>"Founder-led delivery, no national overhead." (Invites "what happens when you grow?")</li>
+      <li>"Our scope excludes [specific line items]." (Needs a scope table with the thinner rows marked.)</li>
+    </ul>
+    <p>Until that sentence exists, reps show Fortitude's scope line by line and offer to set the competitor's proposal beside it.</p>
+  </div>
+  <h3>Cheaper competitors</h3>
+  <p>Don't name them. Don't mention lawsuits unless you can produce the filing.</p>
+  <blockquote class="script">Ask every agency to show you the market research they do before they design anything, show you how the strategy connects to your specific market, and guarantee originality and ownership in writing.</blockquote>
+  <h3>The contractual move (stronger)</h3>
+  <p>Put originality, file transfer and ownership in Fortitude's contract. Cap indemnity at fees paid. Exclude client-supplied assets. Then:</p>
+  <blockquote class="script">We put original IP and full file ownership in the agreement. Ask everyone you're talking to for the same in writing.</blockquote>
+  <div class="callout todo"><p>Fix the MSA before reps promise this.</p></div>
+</section>
+
+<section id="objections">
+  <h2>Objection bank (drill these)</h2>
+  <p class="no-print" style="color:var(--muted);font-size:0.9rem">Turn on <b>drill mode</b> at the top to hide the answers. Say yours out loud, then click to check.</p>
+
+  <div class="obj"><div class="q">"That's a lot of money."</div><div class="a">
+    <blockquote class="script">It is. Compared to what: another quote, your budget, or doing nothing? Because doing nothing has a number too. It's the one on the screen. If your cost per closed job is $X and your average ticket is $Y, you're paying $Z every time you win a job. The question isn't whether [price] is a lot. It's whether $Z per job is more or less.</blockquote>
+    <p class="def" style="font-size:0.8rem;color:var(--faint)">Only use $ figures the calculator hasn't locked.</p></div></div>
+
+  <div class="obj"><div class="q">"I already have a logo."</div><div class="a">
+    <blockquote class="script">Good. I'm not here to take it away. The question isn't whether you have a mark. It's whether that mark is doing any work. Most aren't, because there was no research behind them. If yours is strong and the strategy is sound, we'll tell you and sell you the rollout instead. That happens sometimes.</blockquote></div></div>
+
+  <div class="obj"><div class="q">"AI is good enough now."</div><div class="a">
+    <blockquote class="script">For a mood board, sure. Here's the test: ask it what a homeowner in [specific ZIP] with a 34-year-old house is most afraid of when their AC dies in July, and what your three closest competitors have already claimed. It'll give you something plausible and generic. Generic means invisible, and invisible means price competition.</blockquote></div></div>
+
+  <div class="obj"><div class="q">"I get all my work from word of mouth."</div><div class="a">
+    <blockquote class="script">Then you're leaving money on the table in a specific way. Word of mouth doesn't scale past your personal network, and it doesn't help you hire. When you're ready to add trucks, word of mouth won't fill them. Also, the person your customer refers is going to Google you before they call. What do they see?</blockquote></div></div>
+
+  <div class="obj"><div class="q">"I tried an agency and it didn't work."</div><div class="a">
+    <blockquote class="script">That's the most common thing I hear. Usually it's one of two reasons: nobody set up tracking, so nobody could prove anything, or they sold tactics without strategy. What happened?</blockquote>
+    <p>Listen all the way through. Address the specific failure: tracking, ownership, communication or results.</p></div></div>
+
+  <div class="obj"><div class="q">"I need to think about it."</div><div class="a">
+    <blockquote class="script">Fair. Usually when someone says that, there's one specific thing: the price, the timing, whether it'll work, or something else. Which one is it for you?</blockquote></div></div>
+
+  <div class="obj"><div class="q">"I need to talk to my partner / spouse."</div><div class="a">
+    <blockquote class="script">Of course. What do you think their biggest question will be?</blockquote>
+    <p>Address it now. Then:</p>
+    <blockquote class="script">Would it help if I jumped on a 15-minute call with both of you to answer anything directly?</blockquote></div></div>
+
+  <div class="obj"><div class="q">"Can we do it cheaper / smaller?"</div><div class="a">
+    <blockquote class="script">Yes: the audit or the capture fix. It won't build the brand, but it'll show you how we work. Then we do the brand in the shoulder season, when you have the bandwidth.</blockquote></div></div>
+
+  <div class="obj"><div class="q">"Why now? Let's revisit next year."</div><div class="a">
+    <blockquote class="script">Two reasons. First, your competitor doesn't stop. Second, your seasonality: the next natural window is [month]. If we start in [month − 2], you're live by the season. Starting in the season means we're building while you're drowning.</blockquote></div></div>
+
+  <div class="obj"><div class="q">"Why not just go with KickCharge?"</div><div class="a">
+    <blockquote class="script">They do strong work. Comparable full-scope engagements from national specialists commonly run $20K+. Here's our scope line by line. Bring their proposal and we'll put it right next to ours, so you can see exactly what's in each.</blockquote>
+    <div class="callout fix"><p>The directive's version said "comparable strategic depth at roughly half" and attributed the gap to "overhead." That's a parity claim the Claims Register prohibits, plus a price explanation the founder hasn't supplied yet. Restore the overhead line only if it becomes the founder's approved sentence.</p></div></div></div>
+
+  <div class="obj"><div class="q">"Why not someone cheaper?"</div><div class="a">
+    <blockquote class="script">Ask them three questions: show me the research you do before design, show me how the strategy connects to my market, and put originality and ownership in writing. If they can't answer, you're not saving money.</blockquote></div></div>
+</section>
+
+<section id="claims">
+  <h2>Claims register (required)</h2>
+  <p><b>Rule:</b> if a claim isn't in this register with a source, reps don't say it.</p>
+  <div class="table-wrap"><table>
+    <tr><th>Claim</th><th>Status</th><th>Approved wording</th><th>Source</th></tr>
+    <tr><td>KickCharge pricing</td><td><span class="pill amber">Verify quarterly</span></td><td>"Comparable full-scope brand engagements from national specialists commonly run $20K+"</td><td>Published packages / prospect-reported quotes, dated</td></tr>
+    <tr><td>Booking-rate lift</td><td><span class="pill green">Approved with framing</span></td><td>"When [Client] replaced their brand and site, booking rate went from X to Y over Z months"</td><td>Specific client, baseline dates, what else changed</td></tr>
+    <tr><td>Industry CPC range</td><td><span class="pill green">Approved as range</span></td><td>"In competitive markets, clicks commonly run $20–60. What are yours?"</td><td>Benchmark report, labeled</td></tr>
+    <tr><td>AI ownership</td><td><span class="pill green">Approved with caveat</span></td><td>Weaker copyright protection + lookalike risk + "ask your attorney"</td><td>Copyright Office guidance</td></tr>
+    <tr><td>"10% = $100K/month"</td><td><span class="pill amber">Restricted</span></td><td>Only when derived live from the prospect's own volume</td><td>Their numbers</td></tr>
+    <tr><td>Named competitor lawsuits</td><td><span class="pill red">Prohibited</span></td><td>Don't use</td><td>N/A</td></tr>
+    <tr><td>Parity claims</td><td><span class="pill red">Prohibited</span></td><td>"Same exact work" / "comparable depth at half" not allowed</td><td>N/A</td></tr>
+  </table></div>
+  <div class="callout todo"><p>Fill in the Source column with the actual dated documents (which benchmark report, which KickCharge page or quote and when, which case-study client).</p></div>
+</section>
+
+<section id="dnp">
+  <h2>Do-not-promise list</h2>
+  <ul>
+    <li>No booking-rate, revenue, lead-count or ranking guarantees</li>
+    <li>No "we'll get you to #1 on Google"</li>
+    <li>No implying that a brand alone generates calls</li>
+    <li>No CPC miracles ("we'll save you $50 a click")</li>
+    <li>No competitor legal claims without verified filings</li>
+    <li>No unverified competitor pricing</li>
+    <li>No trademark-law opinions beyond "ask your attorney"</li>
+    <li>No indemnity language counsel hasn't written yet</li>
+    <li>No delivery dates production hasn't confirmed</li>
+    <li>No "millions" or "$100K/month" unless derived from their numbers</li>
+  </ul>
+</section>
+
+<section id="followup">
+  <h2>Follow-up cadence</h2>
+  <div class="table-wrap"><table>
+    <tr><th>When</th><th>Touch</th></tr>
+    <tr><td>Same day</td><td>Recap email with their numbers, the plan, the proposal and the next step. The calculator's "Copy recap" gives you the numbers block.</td></tr>
+    <tr><td>Day 2–3</td><td>Call. "Did you get a chance to look it over? Any questions?"</td></tr>
+    <tr><td>Day 5–7</td><td>Something of value: a competitor insight, a case study or a map-pack note</td></tr>
+    <tr><td>Day 10–14</td><td>Direct check-in. "Is this still a priority, or should I close your file for now?"</td></tr>
+    <tr><td>Monthly after</td><td>Light-touch nurture</td></tr>
+  </table></div>
+  <p>"Just checking in" is a wasted touch. Every touch carries something new.</p>
+  <p><b>Close mechanics:</b> walk every proposal on a call, never send one cold. Close assumptively:</p>
+  <blockquote class="script">I'll send the agreement today. Kickoff the 3rd or the 10th?</blockquote>
+</section>
+
+<section id="training">
+  <h2>Training and certification</h2>
+  <div class="grid two">
+    <div class="card">
+      <h3 style="margin-top:0">Measured on call review</h3>
+      <ul>
+        <li>Discovery talk ratio: rep &lt;40%</li>
+        <li>≥4 of the 6 funnel numbers captured</li>
+        <li>Prospect's own words read back</li>
+        <li>Partner invited to Call 2 (full engagements)</li>
+        <li>Dated next step on every call: 100%, no exceptions</li>
+        <li>No locked calculator cells talked around</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Certified to run diagnosis solo when they can</h3>
+      <ul>
+        <li>Build the economics worksheet live on prospect numbers without error</li>
+        <li>Defend every assumption</li>
+        <li>Stay under 40% talk ratio in discovery</li>
+        <li>Correctly identify delegator vs. controller</li>
+        <li>Leave with a dated next step</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout fix"><p><b>The 6 funnel numbers</b> (the directive cited "6" without listing them): ① monthly spend or cost per lead, ② booking rate, ③ close rate, ④ service ticket, ⑤ install ticket and mix, ⑥ gross margin.</p></div>
+  <p><b>Ramp:</b> how long depends on who Taylor and Layla are. A rep closing 8% needs scripts and gates. A rep closing 25% needs the diagnostic framework and permission to deviate.</p>
+</section>
+
+<section id="build">
+  <h2>Build order</h2>
+  <div class="table-wrap"><table>
+    <tr><th>#</th><th>Asset</th><th>Status</th></tr>
+    <tr><td>1</td><td>Three case-study one-pagers with baselines, what else changed, and a reference client phone number</td><td><span class="pill amber">Needs real client data</span></td></tr>
+    <tr><td>2</td><td>Field card</td><td><a href="field-card.html"><span class="pill green">Built</span></a></td></tr>
+    <tr><td>3</td><td>Prospect Snapshot template</td><td><a href="snapshot.html"><span class="pill green">Built</span></a></td></tr>
+    <tr><td>4</td><td>Economics calculator with locking rules</td><td><a href="calculator.html"><span class="pill green">Built</span></a></td></tr>
+    <tr><td>5</td><td>Scope comparison table</td><td><span class="pill amber">Needs founder's scope rows + competitor proposal</span></td></tr>
+    <tr><td>6</td><td>Claims register</td><td><a href="#claims"><span class="pill blue">Built, sources TBD</span></a></td></tr>
+    <tr><td>7</td><td>Measurement-definitions sheet (signed at kickoff)</td><td><a href="definitions.html"><span class="pill green">Built</span></a></td></tr>
+    <tr><td>8</td><td>Mutual action plan template</td><td><span class="pill amber">Needs production's kickoff calendar</span></td></tr>
+    <tr><td>9</td><td>Full playbook</td><td><span class="pill green">This page</span></td></tr>
+    <tr><td>10</td><td>Recording library (3 wins, 2 losses, annotated)</td><td><span class="pill amber">Needs recordings</span></td></tr>
+  </table></div>
+  <p>Also built: the <a href="router.html">Deal Router</a> (qualification gate + ops gate + persona + offer routing), which wasn't on the original list.</p>
+</section>
+
+<section id="founder">
+  <h2>What the founder must supply</h2>
+  <p>These answers change the guide's shape, not just its details. They're also on the <a href="index.html">Hub</a>.</p>
+  <ol>
+    <li>The true one-sentence answer to "Why is your price lower?", backed by a row-matched scope table</li>
+    <li>Project revenue or a retainer model? That decides whether Tier 0 exists and how the brand sale is priced</li>
+    <li>Qualified conversations per month. At 6, the bottleneck is lead flow. At 30, it's rep efficiency.</li>
+    <li>The last 15 closed deals by revenue, trade and outcome, to set the ICP floor and routing logic</li>
+    <li>Real case-study data with pre-project baselines</li>
+    <li>Who Taylor and Layla are and their current close rates, to set the training approach</li>
+    <li>Actual package prices and contract terms, so ownership and warranty language matches the MSA</li>
+  </ol>
+</section>
+
+    </div>
+  </div>
+</main>
+<script>
+(function () {
+  var GROUPS = { positioning: "Foundation", qualify: "Before the call", call1: "The calls", economics: "Economics", persona: "Routing & offers", guarantee: "Guardrails", ai: "Objections", claims: "Guardrails", followup: "After the call", build: "Rollout" };
+  var toc = document.getElementById("toc"), h = "", last = "";
+  document.querySelectorAll("#content section").forEach(function (s) {
+    var g = GROUPS[s.id]; if (g && g !== last) { h += '<div class="grp">' + g + "</div>"; last = g; }
+    h += '<a href="#' + s.id + '">' + s.querySelector("h2").textContent.replace(/\s*\(.*\)$/, "") + "</a>";
+  });
+  toc.innerHTML = h;
+
+  document.querySelectorAll(".obj > .q").forEach(function (q) {
+    q.addEventListener("click", function () { if (document.body.classList.contains("drill")) q.parentNode.classList.toggle("open"); });
+  });
+  var btn = document.getElementById("drillBtn");
+  btn.addEventListener("click", function () {
+    var on = document.body.classList.toggle("drill");
+    document.querySelectorAll(".obj").forEach(function (o) { o.classList.remove("open"); });
+    btn.textContent = "Objection drill mode: " + (on ? "on" : "off");
+    if (on) location.hash = "objections";
+  });
+
+  var q = document.getElementById("q");
+  q.addEventListener("input", function () {
+    var term = q.value.trim().toLowerCase();
+    document.querySelectorAll("#content section").forEach(function (s) {
+      s.style.display = !term || s.textContent.toLowerCase().indexOf(term) >= 0 ? "" : "none";
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Economics Calculator · Fortitude Sales Kit</title>
+<link rel="stylesheet" href="sales.css">
+<script src="kit.js" defer></script>
+<style>
+  .calc { display: grid; gap: 1rem; grid-template-columns: minmax(300px, 420px) 1fr; align-items: start; }
+  @media (max-width: 900px) { .calc { grid-template-columns: 1fr; } }
+  .inp { display: grid; grid-template-columns: 1fr 112px; gap: 0.4rem; align-items: end; margin-bottom: 0.65rem; }
+  .inp label { grid-column: 1 / -1; margin: 0; }
+  .inp .unit { position: relative; }
+  .inp .unit input { padding-right: 1.6rem; }
+  .inp .unit::after { content: attr(data-unit); position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%); color: var(--faint); font-size: 0.85rem; pointer-events: none; }
+  .inp .unit.pre::after { left: 0.6rem; right: auto; }
+  .inp .unit.pre input { padding-left: 1.4rem; padding-right: 0.6rem; }
+  select.tag { font-size: 0.78rem; padding: 0.5rem 0.4rem; }
+  select.tag.theirs { border-color: rgba(34,197,94,0.6); color: #86efac; }
+  select.tag.est { border-color: rgba(245,158,11,0.6); color: #fcd34d; }
+  select.tag.bench { border-color: rgba(59,130,246,0.6); color: #93c5fd; }
+  select.tag.none { border-color: rgba(220,38,38,0.6); color: #fca5a5; }
+  .def { font-size: 0.74rem; color: var(--faint); margin: -0.3rem 0 0.7rem; }
+  .out td:last-child { text-align: right; font-family: var(--mono); white-space: nowrap; }
+  .out td.locked { color: var(--faint); }
+  .out tr.key td { font-weight: 700; color: #fff; }
+  .stamp { display: inline-block; border: 2px solid var(--warn); color: var(--warn); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; transform: rotate(-1.5deg); }
+  .label-firstjob { font-size: 0.78rem; color: var(--warn); border: 1px dashed rgba(245,158,11,0.6); border-radius: 6px; padding: 0.45rem 0.6rem; margin: 0.5rem 0 0; }
+  .sens { width: 100%; text-align: center; font-family: var(--mono); font-size: 0.85rem; }
+  .sens th, .sens td { text-align: center; }
+  .sens td.center { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .sens td.neg { color: #fca5a5; }
+  .sens td.pos { color: #86efac; }
+  .lockbar { display: none; }
+  .lockbar.on { display: block; }
+  .tally { display: flex; gap: 0.4rem; flex-wrap: wrap; margin: 0.25rem 0 0.75rem; }
+  .frame { font-size: 0.95rem; }
+  details summary { cursor: pointer; font-weight: 700; color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0.5rem 0; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Economics Calculator</h1>
+  <p class="lede">Run it live on the prospect's numbers during Call 2. Tag every input as <b>theirs</b>, <b>estimated</b> or <b>benchmark</b>. If more than two core inputs are benchmarks, the dollar figures lock. You can walk through the structure but you can't quote a monthly number.</p>
+
+  <div class="toolbar">
+    <button type="button" id="copy">Copy recap for email</button>
+    <button type="button" class="ghost" data-action="print">Print / PDF</button>
+    <button type="button" class="ghost" data-action="clear">Clear</button>
+    <span id="copied" class="pill green" style="display:none">Copied</span>
+  </div>
+
+  <div class="calc">
+    <!-- ================= INPUTS ================= -->
+    <form class="card" data-persist id="inputs" onsubmit="return false">
+      <h3 style="margin-top:0">Prospect</h3>
+      <div class="row">
+        <div class="field"><label for="co">Company</label><input type="text" id="co" name="co"></div>
+        <div class="field"><label for="trade">Trade / city</label><input type="text" id="trade" name="trade"></div>
+      </div>
+
+      <h3>Spend &amp; volume</h3>
+      <div class="inp">
+        <label for="spend">Monthly ad spend</label>
+        <div class="unit pre" data-unit="$"><input type="number" id="spend" name="spend" min="0" step="any"></div>
+        <select class="tag" name="spend_tag" data-for="spend"></select>
+      </div>
+
+      <div class="field">
+        <label for="leadMode">How do we know lead volume?</label>
+        <select id="leadMode" name="leadMode">
+          <option value="cpl">Cost per lead</option>
+          <option value="leads">Lead count per month</option>
+          <option value="cpc">CPC + click-to-lead rate</option>
+        </select>
+      </div>
+      <div class="inp" data-mode="cpl">
+        <label for="cpl">Cost per lead</label>
+        <div class="unit pre" data-unit="$"><input type="number" id="cpl" name="cpl" min="0" step="any"></div>
+        <select class="tag" name="cpl_tag" data-for="cpl"></select>
+      </div>
+      <div class="inp" data-mode="leads">
+        <label for="leads">Raw leads per month (calls + forms, before junk)</label>
+        <div class="unit" data-unit="#"><input type="number" id="leads" name="leads" min="0" step="any"></div>
+        <select class="tag" name="leads_tag" data-for="leads"></select>
+      </div>
+      <div class="inp" data-mode="cpc">
+        <label for="cpc">Cost per click</label>
+        <div class="unit pre" data-unit="$"><input type="number" id="cpc" name="cpc" min="0" step="any"></div>
+        <select class="tag" name="cpc_tag" data-for="cpc"></select>
+      </div>
+      <div class="inp" data-mode="cpc">
+        <label for="ctl">Click-to-lead rate</label>
+        <div class="unit" data-unit="%"><input type="number" id="ctl" name="ctl" min="0" max="100" step="any"></div>
+        <select class="tag" name="ctl_tag" data-for="ctl"></select>
+      </div>
+      <p class="def" data-mode="cpc">Rule: never invent both CPC and click-to-lead rate. If both are benchmarks, the sheet locks.</p>
+
+      <h3>Funnel</h3>
+      <div class="inp">
+        <label for="junk">Junk rate</label>
+        <div class="unit" data-unit="%"><input type="number" id="junk" name="junk" min="0" max="100" step="any"></div>
+        <select class="tag" name="junk_tag" data-for="junk"></select>
+      </div>
+      <p class="def">Spam, job seekers, wrong service area, vendors.</p>
+      <div class="inp">
+        <label for="book">Booking rate</label>
+        <div class="unit" data-unit="%"><input type="number" id="book" name="book" min="0" max="100" step="any"></div>
+        <select class="tag" name="book_tag" data-for="book"></select>
+      </div>
+      <p class="def">Appointments set ÷ real leads (junk removed).</p>
+      <div class="inp">
+        <label for="close">Close rate</label>
+        <div class="unit" data-unit="%"><input type="number" id="close" name="close" min="0" max="100" step="any"></div>
+        <select class="tag" name="close_tag" data-for="close"></select>
+      </div>
+      <p class="def">Jobs sold ÷ appointments run.</p>
+
+      <h3>Tickets &amp; margin</h3>
+      <div class="inp">
+        <label for="svc">Service ticket</label>
+        <div class="unit pre" data-unit="$"><input type="number" id="svc" name="svc" min="0" step="any"></div>
+        <select class="tag" name="svc_tag" data-for="svc"></select>
+      </div>
+      <div class="inp">
+        <label for="inst">Install ticket</label>
+        <div class="unit pre" data-unit="$"><input type="number" id="inst" name="inst" min="0" step="any"></div>
+        <select class="tag" name="inst_tag" data-for="inst"></select>
+      </div>
+      <div class="inp">
+        <label for="mix">Installs as % of sold jobs</label>
+        <div class="unit" data-unit="%"><input type="number" id="mix" name="mix" min="0" max="100" step="any"></div>
+        <select class="tag" name="mix_tag" data-for="mix"></select>
+      </div>
+      <div class="inp">
+        <label for="margin">Gross margin (if known)</label>
+        <div class="unit" data-unit="%"><input type="number" id="margin" name="margin" min="0" max="100" step="any"></div>
+        <select class="tag" name="margin_tag" data-for="margin"></select>
+      </div>
+
+      <details id="ltBox">
+        <summary>Optional: lifetime value (3 years)</summary>
+        <p class="def" style="margin-top:0">Ask, don't assume: <i>"What's a customer worth to you over three years?"</i> A number the owner gives you is a number they believe.</p>
+        <div class="inp">
+          <label for="repl">Service customers who replace within 2 years</label>
+          <div class="unit" data-unit="%"><input type="number" id="repl" name="repl" min="0" max="100" step="any"></div>
+          <select class="tag" name="repl_tag" data-for="repl"></select>
+        </div>
+        <div class="inp">
+          <label for="replT">Replacement ticket</label>
+          <div class="unit pre" data-unit="$"><input type="number" id="replT" name="replT" min="0" step="any"></div>
+          <select class="tag" name="replT_tag" data-for="replT"></select>
+        </div>
+        <div class="inp">
+          <label for="mem">New customers who buy a membership</label>
+          <div class="unit" data-unit="%"><input type="number" id="mem" name="mem" min="0" max="100" step="any"></div>
+          <select class="tag" name="mem_tag" data-for="mem"></select>
+        </div>
+        <div class="inp">
+          <label for="memV">Membership revenue per member over 3 years</label>
+          <div class="unit pre" data-unit="$"><input type="number" id="memV" name="memV" min="0" step="any"></div>
+          <select class="tag" name="memV_tag" data-for="memV"></select>
+        </div>
+      </details>
+
+      <h3>Scenario</h3>
+      <p class="def" style="margin-top:0">Type a <b>conservative</b> improvement. These are percentage points: booking 40% → 45% is +5.</p>
+      <div class="row">
+        <div class="field"><label for="dBook">Booking rate +pts</label><input type="number" id="dBook" name="dBook" step="any" placeholder="e.g. 5"></div>
+        <div class="field"><label for="dClose">Close rate +pts</label><input type="number" id="dClose" name="dClose" step="any" placeholder="e.g. 0"></div>
+      </div>
+      <div class="field"><label for="step">Sensitivity grid step (pts)</label><input type="number" id="step" name="step" min="1" step="any" value="5"></div>
+    </form>
+
+    <!-- ================= OUTPUTS ================= -->
+    <section>
+      <div class="card">
+        <h3 style="margin-top:0">Input tags</h3>
+        <div class="tally" id="tally"></div>
+        <div class="callout rule lockbar" id="lockbar"></div>
+        <div class="callout lockbar" id="missingbar"></div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-top:0">First-job view</h3>
+        <div class="table-wrap"><table class="out"><tbody id="outFirst"></tbody></table></div>
+        <p class="label-firstjob">First job only. Doesn't include replacement, membership or referral revenue. This doesn't mean the channel loses money.</p>
+      </div>
+
+      <div class="card" style="margin-top:1rem" id="ltCard">
+        <h3 style="margin-top:0">Lifetime view <span class="pill">3-year</span></h3>
+        <div class="table-wrap"><table class="out"><tbody id="outLife"></tbody></table></div>
+        <p class="def">Lifetime gross profit applies the same gross margin to replacement and membership revenue. Adjust if the owner says membership margin differs.</p>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-top:0">Which frame to use</h3>
+        <div id="frame" class="frame"></div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-top:0">Scenario <span class="stamp">Assumption, not a forecast</span></h3>
+        <div class="table-wrap"><table class="out"><tbody id="outScen"></tbody></table></div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-top:0">Sensitivity: booking × close <span class="stamp">Assumption, not a forecast</span></h3>
+        <p class="def" id="gridBasis"></p>
+        <div class="table-wrap"><table class="sens" id="grid"></table></div>
+      </div>
+
+      <div class="callout" style="margin-top:1rem">
+        <b>CPC rule.</b> The expensive leak is what happens after the click, not the click. Never promise "we'll save you $50 a click." If month-three CPC is still $48 and the booking rate moved, the engagement worked.
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+(function () {
+  var TAGS = [["", "— tag —"], ["theirs", "Theirs"], ["est", "Estimated"], ["bench", "Benchmark"]];
+  var CORE_FIXED = ["spend", "junk", "book", "close", "svc", "inst", "mix", "margin"];
+  var LEAD_FIELDS = { cpl: ["cpl"], leads: ["leads"], cpc: ["cpc", "ctl"] };
+  var LIFE = ["repl", "replT", "mem", "memV"];
+  var LABELS = { spend: "Ad spend", cpl: "Cost per lead", leads: "Lead count", cpc: "CPC", ctl: "Click-to-lead", junk: "Junk rate", book: "Booking rate", close: "Close rate", svc: "Service ticket", inst: "Install ticket", mix: "Install mix", margin: "Gross margin", repl: "Replacement rate", replT: "Replacement ticket", mem: "Membership rate", memV: "Membership value" };
+
+  var $ = function (id) { return document.getElementById(id); };
+  document.querySelectorAll("select.tag").forEach(function (s) {
+    s.innerHTML = TAGS.map(function (t) { return '<option value="' + t[0] + '">' + t[1] + "</option>"; }).join("");
+  });
+
+  function num(id) { var v = $(id).value; if (v === "" || v == null) return null; var n = Number(v); return isFinite(n) ? n : null; }
+  function tag(id) { var s = document.querySelector('select[name="' + id + '_tag"]'); return s ? s.value : ""; }
+  function pct(n) { return n / 100; }
+  function money(n) {
+    if (n == null || !isFinite(n)) return "—";
+    var neg = n < 0, a = Math.abs(n);
+    var s = a >= 100 ? Math.round(a).toLocaleString("en-US") : a.toFixed(2);
+    return (neg ? "−$" : "$") + s;
+  }
+  function count(n) { return n == null || !isFinite(n) ? "—" : (Math.round(n * 10) / 10).toLocaleString("en-US"); }
+  function clamp(r) { return Math.max(0, Math.min(1, r)); }
+
+  function model(o) {
+    // o: {spend, raw, junk, book, close, svc, inst, mix, margin, life:{repl,replT,mem,memV}|null}
+    var real = o.raw * (1 - o.junk);
+    var booked = real * o.book;
+    var cust = booked * o.close;
+    var avgTicket = o.mix * o.inst + (1 - o.mix) * o.svc;
+    var r = {
+      raw: o.raw, real: real, booked: booked, cust: cust, avgTicket: avgTicket,
+      cprl: real > 0 ? o.spend / real : null,
+      cpbj: booked > 0 ? o.spend / booked : null,
+      cac: cust > 0 ? o.spend / cust : null,
+    };
+    if (o.margin != null) {
+      r.fjGP = avgTicket * o.margin;
+      r.fjContrib = r.cac != null ? r.fjGP - r.cac : null;
+      r.fjMonthly = cust * r.fjGP - o.spend;
+      if (o.life) {
+        var ltRev = avgTicket + (1 - o.mix) * o.life.repl * o.life.replT + o.life.mem * o.life.memV;
+        r.ltGP = ltRev * o.margin;
+        r.ltContrib = r.cac != null ? r.ltGP - r.cac : null;
+        r.ltPerDollar = r.cac ? (r.ltGP - r.cac) / r.cac : null;
+        r.ltMonthly = cust * r.ltGP - o.spend;
+      }
+    }
+    return r;
+  }
+
+  function render() {
+    var mode = $("leadMode").value;
+    document.querySelectorAll("[data-mode]").forEach(function (el) { el.style.display = el.getAttribute("data-mode") === mode ? "" : "none"; });
+    document.querySelectorAll("select.tag").forEach(function (s) { s.className = "tag " + (s.value || "none"); });
+
+    var core = CORE_FIXED.slice(0, 1).concat(LEAD_FIELDS[mode], CORE_FIXED.slice(1));
+    var counts = { theirs: 0, est: 0, bench: 0, untagged: 0 };
+    var benchList = [], missing = [];
+    core.forEach(function (id) {
+      var t = tag(id);
+      if (num(id) == null && id !== "margin") missing.push(LABELS[id]);
+      if (num(id) == null) return;
+      if (!t) { counts.untagged++; benchList.push(LABELS[id] + " (untagged)"); }
+      else counts[t]++;
+      if (t === "bench") benchList.push(LABELS[id]);
+    });
+    var benchCount = counts.bench + counts.untagged;
+    var cpcBothBench = mode === "cpc" && ["cpc", "ctl"].every(function (id) { return num(id) != null && (tag(id) === "bench" || !tag(id)); });
+    var locked = benchCount > 2 || cpcBothBench;
+
+    $("tally").innerHTML =
+      '<span class="pill green">Theirs ' + counts.theirs + "</span>" +
+      '<span class="pill amber">Estimated ' + counts.est + "</span>" +
+      '<span class="pill blue">Benchmark ' + counts.bench + "</span>" +
+      (counts.untagged ? '<span class="pill red">Untagged ' + counts.untagged + " (counts as benchmark)</span>" : "");
+
+    var lb = $("lockbar");
+    lb.className = "callout rule lockbar" + (locked ? " on" : "");
+    lb.innerHTML = locked
+      ? "<b>Locked: dollar outcomes hidden.</b> " + (cpcBothBench ? "CPC and click-to-lead are both invented. " : "") +
+        benchCount + " core inputs are benchmarks or untagged (" + benchList.join(", ") + "). Walk the structure but don't quote a dollar figure. Call review fails recordings that talk around locked cells. To unlock, get the owner's real numbers."
+      : "";
+    var mb = $("missingbar");
+    mb.className = "callout lockbar" + (missing.length ? " on" : "");
+    mb.innerHTML = missing.length ? "<b>Still needed:</b> " + missing.join(", ") + "." : "";
+
+    // Gather
+    var spend = num("spend"), raw = null;
+    if (mode === "cpl" && num("cpl")) raw = spend != null ? spend / num("cpl") : null;
+    if (mode === "leads") raw = num("leads");
+    if (mode === "cpc" && num("cpc") && num("ctl") != null) raw = spend != null ? (spend / num("cpc")) * pct(num("ctl")) : null;
+
+    var ready = spend != null && raw != null && missing.length === 0;
+    var lifeReady = LIFE.some(function (id) { return num(id) != null; }) &&
+      ((num("repl") != null && num("replT") != null) || (num("mem") != null && num("memV") != null));
+    var base = ready ? {
+      spend: spend, raw: raw, junk: pct(num("junk")), book: pct(num("book")), close: pct(num("close")),
+      svc: num("svc"), inst: num("inst"), mix: pct(num("mix")),
+      margin: num("margin") != null ? pct(num("margin")) : null,
+      life: lifeReady ? { repl: pct(num("repl") || 0), replT: num("replT") || 0, mem: pct(num("mem") || 0), memV: num("memV") || 0 } : null,
+    } : null;
+    var r = base ? model(base) : null;
+
+    function cell(label, val, isMoney, cls) {
+      var hide = isMoney && locked;
+      var shown = !r ? "—" : hide ? "🔒 locked" : val;
+      return '<tr class="' + (cls || "") + '"><td>' + label + '</td><td class="' + (hide ? "locked" : "") + '">' + shown + "</td></tr>";
+    }
+    var needMargin = '<span style="color:var(--faint)">needs gross margin</span>';
+
+    $("outFirst").innerHTML = [
+      cell("Raw leads / month", r && count(r.raw)),
+      cell("Real leads / month", r && count(r.real)),
+      cell("Cost per real lead", r && money(r.cprl), true),
+      cell("Booked jobs / month", r && count(r.booked)),
+      cell("Cost per booked job", r && money(r.cpbj), true, "key"),
+      cell("New customers / month", r && count(r.cust)),
+      cell("Cost per acquired customer", r && money(r.cac), true, "key"),
+      cell("Average first-job ticket", r && money(r.avgTicket), true),
+      cell("First-job gross profit", r && (r.fjGP != null ? money(r.fjGP) : needMargin), true),
+      cell("First-job contribution per customer", r && (r.fjGP != null ? money(r.fjContrib) : needMargin), true, "key"),
+      cell("Monthly first-job profit after ad spend", r && (r.fjGP != null ? money(r.fjMonthly) : needMargin), true),
+    ].join("");
+
+    $("ltCard").style.display = lifeReady ? "" : "none";
+    if (lifeReady) {
+      $("outLife").innerHTML = [
+        cell("Expected gross profit per customer", r && (r.ltGP != null ? money(r.ltGP) : needMargin), true, "key"),
+        cell("Contribution after acquisition", r && (r.ltGP != null ? money(r.ltContrib) : needMargin), true, "key"),
+        cell("Profit per ad dollar", r && (r.ltPerDollar != null ? money(r.ltPerDollar) : needMargin), true),
+        cell("Monthly lifetime profit after ad spend", r && (r.ltGP != null ? money(r.ltMonthly) : needMargin), true),
+      ].join("");
+    }
+
+    // Scenario
+    var dB = num("dBook") || 0, dC = num("dClose") || 0, s = null, delta = null;
+    var basis = r && r.ltGP != null ? "lifetime" : "first-job";
+    if (base && (dB || dC)) {
+      var sb = Object.assign({}, base, { book: clamp(base.book + pct(dB)), close: clamp(base.close + pct(dC)) });
+      s = model(sb);
+      var m0 = basis === "lifetime" ? r.ltMonthly : r.fjMonthly;
+      var m1 = basis === "lifetime" ? s.ltMonthly : s.fjMonthly;
+      delta = m0 != null && m1 != null ? m1 - m0 : null;
+    }
+    function scell(label, a, b, isMoney, fmt) {
+      if (!s) return '<tr><td>' + label + '</td><td>—</td></tr>';
+      var hide = isMoney && locked;
+      var v = hide ? "🔒 locked" : fmt(a) + " → " + fmt(b);
+      return '<tr><td>' + label + '</td><td class="' + (hide ? "locked" : "") + '">' + v + "</td></tr>";
+    }
+    $("outScen").innerHTML = !s
+      ? '<tr><td colspan="2" style="color:var(--faint)">Enter a booking or close-rate improvement to see the scenario.</td></tr>'
+      : [
+          scell("Booked jobs / month", r.booked, s.booked, false, count),
+          scell("New customers / month", r.cust, s.cust, false, count),
+          scell("Cost per booked job", r.cpbj, s.cpbj, true, money),
+          scell("Cost per acquired customer", r.cac, s.cac, true, money),
+          '<tr class="key"><td>Added monthly gross profit (' + basis + ' basis)</td><td class="' + (locked ? "locked" : "") + '">' +
+            (locked ? "🔒 locked" : delta == null ? needMargin : money(delta)) + "</td></tr>",
+          '<tr><td colspan="2" style="color:var(--faint);font-size:0.8rem">Same ad spend, same CPC. Only the post-click rates moved.</td></tr>',
+        ].join("");
+
+    // Frame
+    var f = $("frame");
+    if (!r) f.innerHTML = '<p style="color:var(--faint)">Fill in the core inputs first.</p>';
+    else if (r.fjGP == null) f.innerHTML = "<p>Ask for gross margin, even a rough one: <i>\"Roughly what do you keep on a typical job after materials and labor?\"</i> Without it, stay on cost per booked job and cost per customer.</p>";
+    else if (r.ltGP != null && r.ltGP < r.cac) f.innerHTML = '<p><span class="pill red">Bleed frame</span></p><p>Even using the owner\'s own lifetime numbers, acquisition costs more than a customer is worth.</p><blockquote class="script">On your numbers, you\'re buying jobs at a loss. Each new customer costs ' + (locked ? "[locked]" : money(r.cac)) + " and returns " + (locked ? "[locked]" : money(r.ltGP)) + " in gross profit over three years. That gap is what we fix first.</blockquote>";
+    else if (r.ltGP == null && r.fjContrib < 0) f.innerHTML = '<p><span class="pill amber">Don\'t frame yet</span></p><p>First-job contribution is negative and the lifetime fields are empty. Don\'t moralize. Experienced owners run the service call thin on purpose. Ask:</p><blockquote class="script">That\'s if a customer is only ever worth one ticket. You know that\'s not true. What\'s a customer worth to you over three years?</blockquote><p class="def">Put their answer in the lifetime fields, tagged <b>Theirs</b>.</p>';
+    else f.innerHTML = '<p><span class="pill green">Opportunity frame</span> <span class="def">(default for fit buyers)</span></p><blockquote class="script">You\'re leaving ' + (locked ? "[locked]" : delta != null && s ? money(delta) + "/month" : "[enter a scenario]") + " on the table because of [name the leak]. Same spend, same clicks. More of them book and close.</blockquote><p class=\"def\">An opportunity frame is a compliment with a price. A bleed frame is an insult with a price. Use bleed only when the owner's own lifetime number is below acquisition cost.</p>";
+
+    // Sensitivity grid
+    var step = pct(num("step") || 5);
+    var g = $("grid");
+    $("gridBasis").textContent = r ? "Each cell: monthly gross profit after ad spend, " + basis + " basis, same spend. Center cell = today." : "";
+    if (!r || r.fjGP == null) { g.innerHTML = '<tr><td style="color:var(--faint)">' + (r ? "Needs gross margin." : "Fill in the core inputs first.") + "</td></tr>"; }
+    else {
+      var bs = [base.book - step, base.book, base.book + step].map(clamp);
+      var cs = [base.close - step, base.close, base.close + step].map(clamp);
+      var h = "<tr><th>Booking ↓ / Close →</th>" + cs.map(function (c) { return "<th>" + Math.round(c * 1000) / 10 + "%</th>"; }).join("") + "</tr>";
+      bs.forEach(function (b, i) {
+        h += "<tr><th>" + Math.round(b * 1000) / 10 + "%</th>";
+        cs.forEach(function (c, j) {
+          var m = model(Object.assign({}, base, { book: b, close: c }));
+          var v = basis === "lifetime" ? m.ltMonthly : m.fjMonthly;
+          var cls = (i === 1 && j === 1 ? "center " : "") + (locked ? "locked" : v < 0 ? "neg" : "pos");
+          h += '<td class="' + cls + '">' + (locked ? "🔒" : money(v)) + "</td>";
+        });
+        h += "</tr>";
+      });
+      g.innerHTML = h;
+    }
+
+    window.__recap = { r: r, s: s, delta: delta, basis: basis, locked: locked, mode: mode, core: core };
+  }
+
+  function recapText() {
+    var x = window.__recap, lines = [];
+    var co = $("co").value || "[Company]";
+    lines.push("Numbers from our call: " + co + (($("trade").value) ? " (" + $("trade").value + ")" : ""));
+    lines.push("");
+    lines.push("WHAT YOU TOLD US (tags: theirs / estimated / benchmark)");
+    x.core.concat(LIFE).forEach(function (id) {
+      var v = num(id); if (v == null) return;
+      var unit = ["junk", "book", "close", "mix", "margin", "ctl", "repl", "mem"].indexOf(id) >= 0 ? v + "%" : id === "leads" ? String(v) : money(v);
+      lines.push("- " + LABELS[id] + ": " + unit + " [" + ({ theirs: "theirs", est: "estimated", bench: "benchmark" }[tag(id)] || "untagged") + "]");
+    });
+    if (x.r) {
+      lines.push("");
+      lines.push("WHAT THAT WORKS OUT TO (first job only, before replacement, membership or referral revenue)");
+      lines.push("- Real leads / month: " + count(x.r.real));
+      lines.push("- Booked jobs / month: " + count(x.r.booked));
+      if (!x.locked) {
+        lines.push("- Cost per booked job: " + money(x.r.cpbj));
+        lines.push("- Cost per acquired customer: " + money(x.r.cac));
+      } else {
+        lines.push("- Dollar figures withheld: too many of these inputs are industry benchmarks, not your numbers. Once we have yours, we'll fill them in.");
+      }
+      if (x.s && !x.locked && x.delta != null) {
+        lines.push("");
+        lines.push("SCENARIO (assumption, not a forecast)");
+        lines.push("- If booking rate +" + (num("dBook") || 0) + " pts and close rate +" + (num("dClose") || 0) + " pts at the same spend: about " + money(x.delta) + "/month more gross profit (" + x.basis + " basis).");
+      }
+    }
+    return lines.join("\n");
+  }
+
+  $("copy").addEventListener("click", function () {
+    var t = recapText();
+    function ok() { var c = $("copied"); c.style.display = ""; setTimeout(function () { c.style.display = "none"; }, 1500); }
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () { prompt("Copy:", t); });
+    else prompt("Copy:", t);
+  });
+
+  document.addEventListener("input", render);
+  document.addEventListener("change", render);
+  document.addEventListener("kit:ready", function () {
+    if (LIFE.some(function (id) { return num(id) != null; })) $("ltBox").open = true;
+    render();
+  });
+})();
+</script>
+</body>
+</html>

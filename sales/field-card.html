@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Card · Fortitude Sales Kit</title>
+<link rel="stylesheet" href="sales.css">
+<script src="kit.js" defer></script>
+<style>
+  .fc { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem 1.4rem; font-size: 0.88rem; }
+  @media (max-width: 760px) { .fc { grid-template-columns: 1fr; } }
+  .fc h3 { font-size: 0.82rem; color: var(--accent); margin: 0 0 0.3rem; }
+  .fc ol, .fc ul { margin: 0; padding-left: 1.15em; }
+  .fc li { margin: 0.1em 0; }
+  .fc .box { border: 1px solid var(--line); border-radius: 8px; padding: 0.6rem 0.8rem; background: var(--panel); }
+  .fc .full { grid-column: 1 / -1; }
+  .fc .say { color: #dbeafe; }
+  .fc .say::before { content: "“"; } .fc .say::after { content: "”"; }
+  .fc .chain { margin: 0.2rem 0 0; } .fc .chain span { font-size: 0.72rem; padding: 0.15rem 0.4rem; }
+  .title { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  @media print {
+    @page { size: letter; margin: 0.3in; }
+    body { font-size: 7.6pt; line-height: 1.32; }
+    .fc { font-size: 7.6pt; gap: 0.35rem 0.6rem; grid-template-columns: 1fr 1fr; }
+    .fc .box { padding: 0.35rem 0.5rem; border-color: #bbb; }
+    .fc h3 { color: #b91c1c; font-size: 7.8pt; margin-bottom: 0.15rem; }
+    .fc li { margin: 0; }
+    .fc .say { color: #111; }
+    h1 { font-size: 14pt; margin: 0; }
+    .title .meta { font-size: 8pt; }
+    .chain span { background: #fff !important; color: #111 !important; border-color: #999 !important; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="title">
+    <h1>Field Card</h1>
+    <span class="meta" style="color:var(--muted);font-size:0.85rem">Keep it next to the phone · Fortitude Creative</span>
+  </div>
+  <div class="toolbar"><button type="button" data-action="print">Print (fits one letter page)</button></div>
+
+  <div class="fc">
+    <div class="box full">
+      <h3>The chain</h3>
+      <div class="chain"><span>Market</span><i>→</i><span>Positioning</span><i>→</i><span>Brand</span><i>→</i><span>Trust</span><i>→</i><span>Conversion</span><i>→</i><span>Booking</span><i>→</i><span>Close</span><i>→</i><span>Revenue</span></div>
+      <p style="margin:0.4rem 0 0" class="say">The point isn't looking nicer. It's that more of the traffic you already pay for turns into booked, closed, profitable work.</p>
+    </div>
+
+    <div class="box">
+      <h3>Call 1 · Discovery (20–30 min)</h3>
+      <p style="margin:0 0 0.3rem"><b>No teaching until you have 3 numbers:</b> spend/CPL · booking rate · close rate (+ ticket mix). <b>Talk &lt;40%.</b></p>
+      <ol>
+        <li>Why reach out <i>now</i>?</li>
+        <li>Where do jobs come from: referral / paid / organic?</li>
+        <li>Monthly spend? CPL or cost per booked job?</li>
+        <li>Service ticket, install ticket, % installs?</li>
+        <li>Booking rate (appts ÷ real leads)?</li>
+        <li>Close rate?</li>
+        <li>Gross margin?</li>
+        <li>% service → replacement in 2 yrs? Memberships?</li>
+        <li>Phone rings mid-job, nobody answers: then what?</li>
+        <li>How many techs? How hard is hiring?</li>
+        <li>What did you try that didn't work? <i>(agency = delegator, DIY = controller)</i></li>
+        <li>Who else decides?</li>
+        <li>This quarter or next year?</li>
+      </ol>
+      <p style="margin:0.3rem 0 0"><b>Close:</b> read it back in their words. Book Call 2 <i>with the partner on the invite</i>.</p>
+    </div>
+
+    <div class="box">
+      <h3>Call 2 · Diagnosis (45 min)</h3>
+      <ul>
+        <li><b>3</b> Mirror: "Still accurate?"</li>
+        <li><b>5</b> Trust score: let the low scores speak</li>
+        <li><b>15</b> Three leaks: <i>only</i> three</li>
+        <li><b>10</b> Economics on <i>their</i> numbers, label assumptions</li>
+        <li><b>10</b> Plan + persona relief</li>
+        <li><b>3</b> One matching case study</li>
+        <li><b>3</b> Price. Then stop talking.</li>
+      </ul>
+      <p style="margin:0.3rem 0 0" class="say">Does this feel like the right direction for where you want to take the business?</p>
+      <p style="margin:0.2rem 0 0">Then offer two dated kickoff options.</p>
+      <h3 style="margin-top:0.5rem">Calculator lock</h3>
+      <p style="margin:0">More than 2 core inputs are benchmarks → <b>no dollar figures</b>. Untagged counts as benchmark.</p>
+    </div>
+
+    <div class="box">
+      <h3>Route, don't menu</h3>
+      <ul>
+        <li>Spend up, results flat / lose on price / can't hire / exit → <b>Full brand</b></li>
+        <li>Calls don't book → Full brand + CSR note, or capture first</li>
+        <li>AI logo / unsure / controller → <b>Paid Audit</b></li>
+        <li>Needs leads this month → <b>Tier 0</b></li>
+        <li>Phones unanswered / no-show reviews → <b>Capture first</b>, brand in shoulder season</li>
+        <li>Too small, no plan → <b>Honest no</b></li>
+      </ul>
+      <p style="margin:0.3rem 0 0" class="say">At your size, I'd spend that money on a CSR and a service van before hiring us.</p>
+    </div>
+
+    <div class="box">
+      <h3>Persona close</h3>
+      <p style="margin:0 0 0.25rem"><b>Delegator</b> ("we", hired an agency):</p>
+      <p style="margin:0 0 0.35rem" class="say">We own almost all of it. Your part is a kickoff, two review rounds, approvals within five business days.</p>
+      <p style="margin:0 0 0.25rem"><b>Controller</b> ("I", did it themselves):</p>
+      <p style="margin:0 0 0.35rem" class="say">You approve the positioning before a single sketch. Nothing goes on a truck you didn't sign.</p>
+      <p style="margin:0"><b>Unclear?</b> Use neither. Book the next meeting.</p>
+    </div>
+
+    <div class="box">
+      <h3>Objections, in one line</h3>
+      <ul>
+        <li><b>Lot of money</b>: "Compared to what? Doing nothing has a number too. It's on the screen."</li>
+        <li><b>Have a logo</b>: "Is it doing any work? If it's strong, we'll sell you the rollout instead."</li>
+        <li><b>AI's fine</b>: "For a mood board, sure. Ask it what a [ZIP] homeowner fears in July."</li>
+        <li><b>Word of mouth</b>: "Referrals Google you before they call. What do they see?"</li>
+        <li><b>Agency failed</b>: "No tracking or no strategy? What happened?" Then listen.</li>
+        <li><b>Think about it</b>: "Price, timing, whether it'll work, or something else?"</li>
+        <li><b>Partner</b>: "What'll their biggest question be?" Then offer a 15-min call with both.</li>
+        <li><b>Cheaper?</b>: "The audit or the capture fix. Brand in the shoulder season."</li>
+        <li><b>Next year</b>: "Start in [month − 2], live by the season."</li>
+        <li><b>Cheaper agency</b>: "Research before design? Strategy tied to my market? Ownership in writing?"</li>
+      </ul>
+    </div>
+
+    <div class="box">
+      <h3>Never</h3>
+      <ul>
+        <li>Guarantee booking rate, revenue, leads or rankings</li>
+        <li>"#1 on Google" · "save $50 a click"</li>
+        <li>Imply a brand alone makes the phone ring</li>
+        <li>Competitor lawsuits · unverified competitor pricing · "same exact work"</li>
+        <li>Trademark opinions beyond "ask your attorney"</li>
+        <li>Dates production hasn't confirmed</li>
+        <li>"$100K/month" unless derived from <i>their</i> numbers</li>
+        <li>Give away, before payment: the positioning answer, the brand story, the messaging, the white space, any visual direction</li>
+      </ul>
+      <h3 style="margin-top:0.5rem">Every call ends with</h3>
+      <p style="margin:0" class="say">I'll send the agreement today. Kickoff the 3rd or the 10th?</p>
+      <p style="margin:0.15rem 0 0">…or at minimum, a <b>dated</b> next step.</p>
+    </div>
+  </div>
+</main>
+</body>
+</html>

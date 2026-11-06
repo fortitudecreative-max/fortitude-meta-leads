@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deal Router · Fortitude Sales Kit</title>
+<link rel="stylesheet" href="sales.css">
+<script src="kit.js" defer></script>
+<style>
+  .split { display: grid; gap: 1rem; grid-template-columns: 1fr minmax(300px, 420px); align-items: start; }
+  @media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+  .verdict { position: sticky; top: 4rem; }
+  .verdict h2 { margin-top: 0; }
+  .big { font-family: "Oswald", sans-serif; font-size: 1.5rem; text-transform: uppercase; margin: 0.25rem 0 0.5rem; }
+  .big.green { color: var(--good); } .big.amber { color: var(--warn); } .big.red { color: #f87171; } .big.blue { color: var(--info); }
+  .reasons { font-size: 0.88rem; color: var(--muted); }
+  fieldset { border: 0; padding: 0; margin: 0; }
+  .score { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Deal Router</h1>
+  <p class="lede">Fill this in during or right after Call 1. It applies the qualification gate, the operational-readiness gate, persona routing and offer routing, and gives you the one offer to recommend. Never present the offers as a menu.</p>
+  <div class="toolbar"><button type="button" class="ghost" data-action="print">Print / PDF</button><button type="button" class="ghost" data-action="clear">Clear</button></div>
+
+  <div class="split">
+    <form data-persist onsubmit="return false">
+      <div class="card">
+        <h3 style="margin-top:0">Prospect</h3>
+        <div class="row">
+          <div class="field"><label>Company</label><input type="text" name="co"></div>
+          <div class="field"><label>Trade / city</label><input type="text" name="trade"></div>
+          <div class="field"><label>Rep</label><input type="text" name="rep"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-top:0">1 · Fit</h3>
+        <div class="row">
+          <div class="field"><label for="rev">Annual revenue ($)</label><input type="number" id="rev" name="rev" min="0" step="any"></div>
+          <div class="field"><label for="floor">ICP revenue floor ($)</label><input type="number" id="floor" name="floor" min="0" step="any" value="750000"></div>
+          <div class="field"><label for="trucks">Trucks</label><input type="number" id="trucks" name="trucks" min="0" step="1"></div>
+        </div>
+        <p class="def" style="font-size:0.75rem;color:var(--faint)">The $750K floor is a placeholder. Set it from the last 15 closed deals.</p>
+        <label class="check"><input type="checkbox" name="growth"> Clear growth plan (if under 3 trucks)</label>
+        <label class="check"><input type="checkbox" name="dm"> Decision-maker on the call, with authority</label>
+        <label class="check"><input type="checkbox" name="deadline"> Pain has a specific deadline attached</label>
+        <label class="check"><input type="checkbox" name="spending"> Spending on marketing now, or ready to</label>
+
+        <h4 style="margin-top:1rem">Hard disqualifiers</h4>
+        <label class="check"><input type="checkbox" name="cheap"> Only wants "a cheap logo"</label>
+        <label class="check"><input type="checkbox" name="guarantee"> Expects guaranteed lead counts</label>
+        <label class="check"><input type="checkbox" name="price"> Shopping purely on price</label>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-top:0">2 · Operational readiness</h3>
+        <p style="font-size:0.88rem;color:var(--muted)">A brand doesn't fix any of these. If they fail, a new brand just generates calls they can't catch.</p>
+        <div class="row">
+          <div class="field"><label for="missed">Missed-call rate (%)</label><input type="number" id="missed" name="missed" min="0" max="100" step="any"></div>
+          <div class="field"><label for="rating">Google rating</label><input type="number" id="rating" name="rating" min="0" max="5" step="0.1"></div>
+          <div class="field"><label for="rev90">Reviews, last 90 days</label><input type="number" id="rev90" name="rev90" min="0" step="1"></div>
+        </div>
+        <label class="check"><input type="checkbox" name="csr"> CSRs have documented scripting</label>
+        <label class="check"><input type="checkbox" name="reviews"> Has a review-generation system</label>
+        <label class="check"><input type="checkbox" name="capacity"> Has capacity to run more leads this season</label>
+        <label class="check"><input type="checkbox" name="noshow"> Recent reviews mention no-shows or unanswered calls</label>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-top:0">3 · Persona</h3>
+        <p style="font-size:0.88rem;color:var(--muted)">Tell: <i>"What did you try before that didn't work?"</i></p>
+        <div class="grid two">
+          <fieldset>
+            <h4>Delegator</h4>
+            <label class="check"><input type="checkbox" name="d1"> "We hired an agency, they couldn't run it"</label>
+            <label class="check"><input type="checkbox" name="d2"> Has a bookkeeper, thinks in hours</label>
+            <label class="check"><input type="checkbox" name="d3"> Says "we" about the company</label>
+          </fieldset>
+          <fieldset>
+            <h4>Controller</h4>
+            <label class="check"><input type="checkbox" name="c1"> "I did it myself but got busy"</label>
+            <label class="check"><input type="checkbox" name="c2"> Still quotes their own jobs</label>
+            <label class="check"><input type="checkbox" name="c3"> Says "I" about the company</label>
+          </fieldset>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-top:0">4 · Strongest discovery signal</h3>
+        <div class="field">
+          <select name="signal" id="signal">
+            <option value="">— pick the one that came up loudest —</option>
+            <option value="spend">Heavy spend, flat results</option>
+            <option value="nobook">"Calls come in but don't book"</option>
+            <option value="price">"Techs lose on price"</option>
+            <option value="hire">"We can't hire"</option>
+            <option value="exit">Planning an exit or bringing in a partner</option>
+            <option value="ailogo">"Tweak my AI logo" / "Not sure I need a brand"</option>
+            <option value="now">Needs leads this month</option>
+            <option value="site">Site is clearly the bottleneck</option>
+            <option value="growth">$3M+ and in growth mode</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-top:0">5 · Single-call exception</h3>
+        <p style="font-size:0.88rem;color:var(--muted)">You can only skip Call 2 if <b>every</b> box is true.</p>
+        <label class="check"><input type="checkbox" name="s1"> Every decision-maker is present</label>
+        <label class="check"><input type="checkbox" name="s2"> Prospect stated ≥4 funnel numbers unprompted</label>
+        <label class="check"><input type="checkbox" name="s3"> Prospect asked for price or a start date</label>
+        <label class="check"><input type="checkbox" name="s4"> I have a 10-minute snapshot with two specific holes named</label>
+        <label class="check"><input type="checkbox" name="s5"> Production has confirmed a kickoff window</label>
+      </div>
+    </form>
+
+    <aside class="verdict">
+      <div class="card">
+        <h4>Verdict</h4>
+        <div class="big" id="vTitle">—</div>
+        <div id="vBody"></div>
+        <ul class="reasons" id="vReasons"></ul>
+      </div>
+      <div class="card" style="margin-top:1rem">
+        <h4>Recommend</h4>
+        <div class="big blue" id="oTitle" style="font-size:1.15rem">—</div>
+        <div id="oBody" style="font-size:0.9rem"></div>
+      </div>
+      <div class="card" style="margin-top:1rem">
+        <h4>Persona close</h4>
+        <div class="score" id="pScore"></div>
+        <div id="pBody"></div>
+      </div>
+      <div class="card" style="margin-top:1rem">
+        <h4>Next step</h4>
+        <div id="nBody" style="font-size:0.9rem"></div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+(function () {
+  function f(n) { return document.querySelector('[name="' + n + '"]'); }
+  function on(n) { var e = f(n); return !!(e && e.checked); }
+  function val(n) { var e = f(n); if (!e || e.value === "") return null; var x = Number(e.value); return isFinite(x) ? x : null; }
+  function set(id, h) { document.getElementById(id).innerHTML = h; }
+
+  var OFFERS = {
+    brand: ["Brand Foundation", "Market research → strategy → positioning → identity → brand system → rollout guidelines. For ops-ready shops that look like everyone else. (~$10,500)"],
+    brandweb: ["Brand + Web", "Brand Foundation plus a full site build. For shops where the site is the bottleneck."],
+    growth: ["Brand + Growth Partnership", "Brand + Web plus a monthly marketing retainer. For $3M+ shops in growth mode."],
+    audit: ["Paid Audit", "$1,500–$3,000. ZIP research, competitor review mining, trust score, what the current mark fails to answer, and the questions the strategy has to resolve. Does <b>not</b> include the positioning answer, the brand story or the messaging hierarchy. The fee credits 100% toward a full brand signed within 30 days."],
+    tier0: ["Tier 0 Capture Fix", "~$3,500. GBP overhaul, review engine, service-area pages, call tracking, LSA setup. No logo, identity or wraps. Separate proposal. Never a discount chip. The SOW states what stays broken without the upgrade."],
+  };
+  var SIGNAL_NOTE = {
+    spend: "Lead with cost per booked job on their numbers.",
+    nobook: "Include a CSR note in the plan. If the booking problem is the phones, route to capture first.",
+    price: "Lead with trust gap vs. map-pack competitors. A forgettable brand forces price competition.",
+    hire: "Lead with recruiting math: what an open truck costs per week.",
+    exit: "Lead with the valuation angle: a transferable brand vs. an owner-dependent name.",
+    ailogo: "Concede the mood board, then sell the thinking, not the answer.",
+    now: "Brand doesn't buy leads this month. Capture fix now, brand in the shoulder season.",
+    site: "", growth: "",
+  };
+
+  function render() {
+    var touched = Array.prototype.some.call(document.querySelectorAll("form [name]"), function (e) {
+      return e.name !== "floor" && (e.type === "checkbox" ? e.checked : e.value !== "");
+    });
+    if (!touched) {
+      ["vReasons", "oBody", "pBody", "nBody", "pScore"].forEach(function (id) { set(id, ""); });
+      document.getElementById("vTitle").textContent = "Waiting for Call 1 notes"; document.getElementById("vTitle").className = "big";
+      set("vBody", '<p style="color:var(--faint);font-size:0.88rem">Start filling in the left side.</p>');
+      document.getElementById("oTitle").textContent = "—";
+      return;
+    }
+    var reasons = [], disq = false, ops = false, fitGaps = [];
+
+    var rev = val("rev"), floor = val("floor") || 750000, trucks = val("trucks");
+    if (rev != null && rev < floor) { disq = true; reasons.push("Revenue $" + rev.toLocaleString() + " is under the $" + floor.toLocaleString() + " floor."); }
+    if (trucks != null && trucks < 3 && !on("growth")) { disq = true; reasons.push("Under 3 trucks with no clear growth plan."); }
+    if (on("cheap")) { disq = true; reasons.push("Only wants a cheap logo."); }
+    if (on("guarantee")) { disq = true; reasons.push("Expects guaranteed lead counts. We never promise those."); }
+    if (on("price")) { disq = true; reasons.push("Shopping purely on price."); }
+    if (!on("dm")) fitGaps.push("No decision-maker with authority on the call yet.");
+    if (!on("deadline")) fitGaps.push("No deadline attached to the pain.");
+    if (!on("spending")) fitGaps.push("Not spending on marketing or ready to.");
+
+    var missed = val("missed"), rating = val("rating"), r90 = val("rev90");
+    var opsReasons = [];
+    if (missed != null && missed > 15) opsReasons.push("Missed-call rate " + missed + "% (>15%).");
+    if (rating != null && r90 != null && rating < 4.2 && r90 < 15) opsReasons.push("Google " + rating + "★ with only " + r90 + " reviews in 90 days.");
+    if (!on("csr")) opsReasons.push("No documented CSR scripting.");
+    if (!on("reviews")) opsReasons.push("No review-generation system.");
+    if (on("noshow")) opsReasons.push("Recent reviews mention no-shows or unanswered calls.");
+    if (!on("capacity")) opsReasons.push("No confirmed capacity for more leads.");
+    ops = opsReasons.length > 0;
+
+    // Verdict
+    var vt = document.getElementById("vTitle");
+    if (disq) {
+      vt.textContent = "Disqualify, out loud"; vt.className = "big red";
+      set("vBody", '<blockquote class="script">At your size, I\'d spend that money on a CSR and a service van before hiring us.</blockquote><p style="font-size:0.85rem;color:var(--muted)">Adapt the line to the reason. An honest no generates more referrals than any close. Offer a check-in when they hit the floor.</p>');
+      set("vReasons", reasons.map(function (r) { return "<li>" + r + "</li>"; }).join(""));
+    } else if (ops) {
+      vt.textContent = "Ops gate: capture first"; vt.className = "big amber";
+      set("vBody", '<blockquote class="script">At your current answer rate, I wouldn\'t sell you a full brand yet. A new brand will just generate calls you can\'t catch. Fix capture first, or let us scope a 30-day capture fix, and we\'ll schedule the brand for the shoulder season.</blockquote><p style="font-size:0.85rem;color:var(--muted)">This loses cash this month. It prevents month-four churn that kills case studies and referrals.</p>');
+      set("vReasons", opsReasons.concat(fitGaps).map(function (r) { return "<li>" + r + "</li>"; }).join(""));
+    } else {
+      vt.textContent = fitGaps.length ? "Fit, with gaps" : "Fit"; vt.className = "big " + (fitGaps.length ? "amber" : "green");
+      set("vBody", fitGaps.length ? '<p style="font-size:0.88rem">Close these gaps before Call 2:</p>' : '<p style="font-size:0.88rem">Book Call 2 with the secondary decision-maker on the invite.</p>');
+      set("vReasons", fitGaps.map(function (r) { return "<li>" + r + "</li>"; }).join(""));
+    }
+
+    // Persona
+    var d = ["d1", "d2", "d3"].filter(on).length, c = ["c1", "c2", "c3"].filter(on).length;
+    var persona = d > c ? "delegator" : c > d ? "controller" : null;
+    set("pScore", "Delegator " + d + " · Controller " + c);
+    if (persona === "delegator") set("pBody", '<p class="big green" style="font-size:1.1rem">Delegator</p><blockquote class="script">Here\'s everything that has to go right. We own almost all of it. Your part is a kickoff, two review rounds, and approvals within five business days, starting [production-confirmed date].</blockquote>');
+    else if (persona === "controller") set("pBody", '<p class="big amber" style="font-size:1.1rem">Controller</p><blockquote class="script">You built this company. You could absolutely build this pipeline. The piece owners in your position usually skip is the competitive and housing-stock research. That\'s what decides whether the mark is ownable or just another blue wrench. Here\'s what getting that piece wrong costs per month on the numbers we just ran. You approve the positioning before a single sketch. Nothing goes on a truck you didn\'t sign.</blockquote>');
+    else set("pBody", '<p class="big" style="font-size:1.1rem;color:var(--muted)">Unclear</p><p style="font-size:0.88rem">Don\'t use either close. Book the next meeting and listen for the tell.</p>');
+
+    // Offer
+    var sig = f("signal").value, key = null, why = "";
+    if (disq) { key = null; why = "No offer. Honest disqualification."; }
+    else if (ops || sig === "now") { key = "tier0"; why = ops ? "The ops gate failed. Capture first, brand scheduled for the shoulder season." : "Needs leads this month."; }
+    else if (sig === "ailogo" || persona === "controller") { key = "audit"; why = sig === "ailogo" ? "They aren't sold on needing a brand. Let them see the thinking." : "Controllers want to see the thinking before they hand anything over."; }
+    else if (sig === "growth") { key = rev != null && rev < 3000000 ? "brandweb" : "growth"; why = key === "growth" ? "$3M+ in growth mode." : "Growth mode, but under $3M. Brand + Web first, retainer later."; }
+    else if (sig === "site") { key = "brandweb"; why = "The site is the bottleneck."; }
+    else if (sig) { key = "brand"; why = "Full brand engagement."; }
+
+    var ot = document.getElementById("oTitle");
+    if (!key) { ot.textContent = disq ? "Nothing" : "—"; set("oBody", disq ? why : '<p style="color:var(--faint)">Pick the strongest discovery signal.</p>'); }
+    else {
+      ot.textContent = OFFERS[key][0];
+      var note = SIGNAL_NOTE[sig] ? "<p><b>Angle:</b> " + SIGNAL_NOTE[sig] + "</p>" : "";
+      if (key === "tier0" && ops && on("noshow")) note += "<p><b>Watch out:</b> Tier 0 adds lead volume (LSA, landing pages). If calls already go unanswered, fix answering and CSR scripting first, or more leads just leak.</p>";
+      set("oBody", "<p>" + why + "</p>" + note + "<p style=\"color:var(--muted)\">" + OFFERS[key][1] + "</p>");
+    }
+
+    // Next step
+    var single = ["s1", "s2", "s3", "s4", "s5"].every(on);
+    var nb;
+    if (disq) nb = "Close the file kindly. Set a 6-month check-in if they have a growth plan.";
+    else if (single && !ops) nb = '<span class="pill green">Single-call OK</span><p>Present and close today. Even so, <b>don\'t</b> hand over the positioning answer, the brand story or a DIY manual.</p><blockquote class="script">I\'ll send the agreement today. Kickoff the 3rd or the 10th?</blockquote>';
+    else nb = "<p>Book <b>Call 2 (45 min)</b> with every decision-maker on the invite. Send the Prospect Snapshot 24 hours before.</p><p><a href=\"snapshot.html\">Build the snapshot →</a> · <a href=\"calculator.html\">Open the calculator →</a></p>" + (single && ops ? '<p class="def" style="color:var(--warn)">The single-call conditions are met, but the ops gate failed. Don\'t skip Call 2.</p>' : "");
+    set("nBody", nb);
+  }
+
+  document.addEventListener("input", render);
+  document.addEventListener("change", render);
+  document.addEventListener("kit:ready", render);
+})();
+</script>
+</body>
+</html>
