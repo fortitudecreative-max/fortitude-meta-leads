@@ -22,8 +22,9 @@ import { next } from "@vercel/edge";
 const FAMILY_COOKIE_NAME = "fortitude_family_session";
 
 // Gate every path (incl. index.html / dashboard.html); leave favicon public.
+// /org-chart is a public, static reference page (no lead data), so it skips the gate.
 export const config = {
-  matcher: "/((?!favicon\\.ico|robots\\.txt).*)",
+  matcher: "/((?!favicon\\.ico|robots\\.txt|org-chart).*)",
 };
 
 export default async function middleware(req: Request): Promise<Response> {
