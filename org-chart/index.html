@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}img{max-width:100%}</style>
+<title>$100M Home Service Org Chart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: blueprint sheet. Before chart (problems) -> corrected chart (exec row + five department columns) -> why each change -> decisions, controls, sequence. */
+:root{
+  --bg:#f5f7f9; --panel:#ffffff; --ink:#14212e; --muted:#5a6876; --line:#d5dde5;
+  --accent:#1f5f8b; --accent-soft:#e3eef6;
+  --new:#1d7a4a; --new-bg:#e2f3e9;
+  --moved:#1f5f8b; --moved-bg:#e3eef6;
+  --merged:#6b4aa8; --merged-bg:#efe9f8;
+  --cut:#b3362c; --cut-bg:#fbe7e4;
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f161d; --panel:#16202a; --ink:#e4ebf1; --muted:#97a6b4; --line:#2a3846;
+  --accent:#7db8e3; --accent-soft:#1b3346;
+  --new:#6fd39d; --new-bg:#163426; --moved:#7db8e3; --moved-bg:#1b3346;
+  --merged:#b89cf0; --merged-bg:#2a2140; --cut:#f08c82; --cut-bg:#3d1d1a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --panel:#16202a; --ink:#e4ebf1; --muted:#97a6b4; --line:#2a3846;
+  --accent:#7db8e3; --accent-soft:#1b3346;
+  --new:#6fd39d; --new-bg:#163426; --moved:#7db8e3; --moved-bg:#1b3346;
+  --merged:#b89cf0; --merged-bg:#2a2140; --cut:#f08c82; --cut-bg:#3d1d1a; color-scheme:dark}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding-block:40px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(28px,4.4vw,44px);font-weight:800;line-height:1.08}
+h2{font-size:24px;font-weight:700}
+h3{font-size:16px;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+section{display:flex;flex-direction:column;gap:18px}
+.lede{font-size:17px;color:var(--muted)}
+.lede strong{color:var(--ink)}
+header{display:flex;flex-direction:column;gap:14px}
+
+/* tags */
+.tag{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:3px;white-space:nowrap;vertical-align:1px}
+.t-new{color:var(--new);background:var(--new-bg)}
+.t-moved{color:var(--moved);background:var(--moved-bg)}
+.t-merged{color:var(--merged);background:var(--merged-bg)}
+.t-cut{color:var(--cut);background:var(--cut-bg)}
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;font-size:13px;color:var(--muted);align-items:center}
+
+/* exec spine */
+.spine{display:flex;flex-direction:column;align-items:center;gap:0}
+.node{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 16px;text-align:center;min-width:0}
+.node b{display:block;font-family:var(--f-display);font-size:15px}
+.node small{color:var(--muted);font-size:12.5px}
+.node.top{border:2px solid var(--ink)}
+.node.bad{border:2px solid var(--cut);background:var(--cut-bg)}
+.stem{width:2px;height:18px;background:var(--line)}
+.bar{height:2px;background:var(--line);width:calc(100% - 20%);}
+
+.cols{display:grid;gap:12px;grid-template-columns:repeat(5,minmax(0,1fr));width:100%}
+.cols.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.col{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0;border-top:3px solid var(--accent)}
+.col.bad{border-top-color:var(--cut)}
+.col h3{display:flex;flex-direction:column;gap:2px}
+.col h3 small{font-family:var(--f-body);font-weight:500;font-size:12px;color:var(--muted)}
+.tree,.tree ul{list-style:none;margin:0;padding:0}
+.tree ul{padding-left:12px;border-left:1px solid var(--line);margin:4px 0 6px 4px;display:flex;flex-direction:column;gap:3px}
+.tree{display:flex;flex-direction:column;gap:6px;font-size:13.5px}
+.tree li{line-height:1.4}
+.tree .grp{font-weight:600}
+.tree .note{color:var(--muted);font-size:12.5px}
+.strike{text-decoration:line-through;color:var(--muted)}
+
+.problem{font-size:12.5px;color:var(--cut);line-height:1.4}
+
+.side{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;width:100%}
+@media (max-width:980px){.side{grid-template-columns:1fr 1fr}}
+.side .node{text-align:left}
+
+@media (max-width:980px){.cols,.cols.four{grid-template-columns:repeat(2,minmax(0,1fr))}.bar{display:none}}
+@media (max-width:560px){.cols,.cols.four,.side{grid-template-columns:1fr}}
+
+/* why list */
+.why{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.why{grid-template-columns:1fr}}
+.why article{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px 18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.why .chg{font-size:13.5px;color:var(--muted)}
+.why .chg b{color:var(--ink);font-weight:600}
+
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:620px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:500}
+tr:last-child td{border-bottom:0}
+
+ol.steps{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px;max-width:78ch}
+ol.steps li::marker{font-family:var(--f-mono);color:var(--accent)}
+ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:78ch}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 16px;border-radius:0 6px 6px 0;font-size:14px;max-width:78ch}
+footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Council verdict · residential HVAC &amp; plumbing · $100M revenue</span>
+  <h1>The corrected org chart, and why each box moved</h1>
+  <p class="lede">You were right on both counts. <strong>The CMO can't sit above the CEO</strong>, and the chart <strong>is missing a whole layer of roles</strong>. But the bigger problem is that the boxes it already has contradict each other. The fix is to sort out the top, pick one operating model, and build the missing middle. It does not need more executives.</p>
+  <div class="legend">
+    <span><span class="tag t-new">New</span> role the old chart lacked</span>
+    <span><span class="tag t-moved">Moved</span> new reporting line</span>
+    <span><span class="tag t-merged">Merged</span> two boxes combined</span>
+    <span><span class="tag t-cut">Removed</span> layer taken out</span>
+  </div>
+</header>
+
+<!-- BEFORE -->
+<section>
+  <span class="eyebrow">Before</span>
+  <h2>The chart you had</h2>
+  <p class="note" style="color:var(--muted);font-size:13.5px">Your proposed chart, box for box. Red notes mark what's broken.</p>
+  <div class="spine">
+    <div class="node bad"><b>CMO</b><small>drawn above the CEO</small></div>
+    <div class="stem"></div>
+    <div class="node top"><b>CEO</b></div>
+    <div class="stem"></div>
+  </div>
+  <div class="cols">
+    <div class="col bad">
+      <h3>Director of Marketing<small>under the CMO, outside the CEO's line</small></h3>
+      <ul class="tree"><li>Acquisition Manager <span class="note">local ads, search, referrals</span></li><li>Retention Manager <span class="note">membership renewals, outreach</span></li></ul>
+      <p class="problem">A second marketing layer with no link to booking, sales or capacity.</p>
+    </div>
+    <div class="col bad">
+      <h3>CRO<small>Chief Revenue Officer</small></h3>
+      <ul class="tree"><li class="grp">VP Sales &amp; Customer Care<ul><li>In-Home Sales Mgr <span class="note">comfort advisors, estimators</span></li><li>Contact Center Mgr <span class="note">call booking, sales follow-up</span></li></ul></li></ul>
+      <p class="problem">Third revenue layer over one funnel. It holds the GMs' biggest lever, replacement sales.</p>
+    </div>
+    <div class="col bad">
+      <h3>COO</h3>
+      <ul class="tree">
+        <li class="grp">HVAC GM "owns the P&amp;L"<ul><li>Service Mgr → techs</li><li>Maintenance Mgr → techs</li><li>Installation Mgr → crews</li></ul></li>
+        <li class="grp">Director of Field Support<ul><li>Dispatch Mgr</li><li>Fleet &amp; Warehouse Mgr <span class="note">trucks, purchasing, inventory</span></li><li>Safety &amp; Training Mgr <span class="note">safety, trainers, quality checks</span></li></ul></li>
+        <li class="grp">Plumbing GM "owns the P&amp;L"<ul><li>Service Mgr → plumbers</li><li>Drain &amp; Sewer Mgr → drain techs, excavation</li><li>Installation Mgr → repipe, water heater crews</li></ul></li>
+      </ul>
+      <p class="problem">GMs "own the P&amp;L" but don't control selling, booking or dispatch. Managers sit directly over 50+ techs. Field Support crams three unrelated jobs under one director.</p>
+    </div>
+    <div class="col">
+      <h3>CFO</h3>
+      <ul class="tree"><li>Controller</li><li>FP&amp;A Manager</li></ul>
+      <p class="note" style="font-size:12.5px;color:var(--muted)">A sound base, but thin.</p>
+    </div>
+    <div class="col">
+      <h3>VP of HR</h3>
+      <ul class="tree"><li>Recruiting Manager</li><li>HR Manager</li></ul>
+      <p class="problem">Too thin to hire technicians at this volume.</p>
+    </div>
+  </div>
+  <p style="color:var(--muted);font-size:13.5px">Nobody owns technology, licensing and insurance, financing and rebates, warranty recovery, permits, the membership program, or after-hours.</p>
+</section>
+
+<!-- AFTER -->
+<section>
+  <span class="eyebrow">After · default model (one metro, trade P&amp;Ls)</span>
+  <h2>The corrected structure</h2>
+  <div class="spine">
+    <div class="node top"><b>Owner / Board</b><small>the founder's seat, if the "CMO" is actually the owner</small></div>
+    <div class="stem"></div>
+    <div class="node top"><b>CEO</b><small>five direct reports</small></div>
+    <div class="stem"></div>
+  </div>
+  <div class="cols">
+    <div class="col">
+      <h3>COO<small>runs delivery and capacity</small></h3>
+      <ul class="tree">
+        <li class="grp">HVAC GM <span class="tag t-moved">real P&amp;L</span>
+          <ul>
+            <li>Service Mgr → <b>Field Supervisors</b> <span class="tag t-new">New</span> → techs</li>
+            <li>Maintenance Mgr → Supervisors → membership techs</li>
+            <li>Install Mgr → Install Supervisors, <b>Install Coordinators</b>, <b>Permit Coordinator</b> <span class="tag t-new">New</span></li>
+            <li><b>HVAC Sales Mgr</b> → Comfort Advisors <span class="tag t-moved">Moved</span></li>
+          </ul></li>
+        <li class="grp">Plumbing GM
+          <ul>
+            <li>Service Mgr → Field Supervisors → plumbers</li>
+            <li>Drain &amp; Sewer Mgr</li>
+            <li>Install Mgr (repipe, water heater) + Permits</li>
+            <li class="note">Sales: tech-sold, plus a senior estimator for sewer and repipes</li>
+          </ul></li>
+        <li class="grp">Dir. Customer Operations <span class="tag t-merged">Merged</span>
+          <ul><li>Inbound booking + dispatch</li><li>Capacity planner, after-hours lead</li><li>Membership visit scheduling</li><li>Escalations</li></ul></li>
+        <li class="grp">Dir. Supply Chain, Fleet &amp; Facilities
+          <ul><li>Purchasing &amp; rebates</li><li>Warehouse &amp; truck stock</li><li>Fleet &amp; facilities</li></ul></li>
+        <li>Technical Training <span class="tag t-new">Split</span></li>
+        <li>Quality &amp; Warranty <span class="tag t-new">New</span> <span class="note">independent of GMs</span></li>
+        <li>EHS / Safety &amp; DOT <span class="tag t-new">Split</span> <span class="note">stop-work authority</span></li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3>CFO</h3>
+      <ul class="tree">
+        <li>Controller <span class="note">+ deferred membership revenue, commissions, job cost</span></li>
+        <li>FP&amp;A <span class="note">+ trade P&amp;Ls, pricebook margin floors</span></li>
+        <li>Financing &amp; rebate controls <span class="tag t-new">New</span></li>
+        <li>Risk, insurance &amp; licensing <span class="tag t-new">New</span> <span class="note">primary + backup license holders per trade</span></li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3>VP of Marketing <span class="tag t-merged">Merged</span><small>replaces CMO + Director of Marketing</small></h3>
+      <ul class="tree">
+        <li>Digital acquisition (PPC, LSA, SEO)</li>
+        <li>Brand, reputation, agencies</li>
+        <li>Lifecycle &amp; membership campaigns</li>
+        <li>Outbound desk <span class="note">aged estimates, renewals; no discount authority</span></li>
+        <li>Sales enablement &amp; financing standards</li>
+        <li>Attribution analyst <span class="tag t-new">New</span></li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3>VP of People<small>was VP of HR</small></h3>
+      <ul class="tree">
+        <li>Talent acquisition <span class="note">technical recruiters, trade-school pipeline</span></li>
+        <li>HR business partners, employee relations</li>
+        <li>Comp, benefits &amp; HRIS</li>
+        <li>Apprentice program &amp; leadership development</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3>Dir. Business Systems <span class="tag t-new">New</span></h3>
+      <ul class="tree">
+        <li>ServiceTitan / FSM admin, pricebook publishing</li>
+        <li>BI analyst <span class="note">weekly trade margin + capacity view</span></li>
+        <li>Phones, devices, integrations, security</li>
+      </ul>
+      <p class="note" style="font-size:12.5px;color:var(--muted)">Reports to the CEO while systems are unstable. Moves under the CFO once they're stable.</p>
+    </div>
+  </div>
+  <div class="side">
+    <div class="node"><b><span class="tag t-cut">Removed</span> CRO and VP Sales &amp; Customer Care</b><small>Comfort advisors go to the trade GMs. Call booking goes to Customer Operations. Sales follow-up goes to Marketing's outbound desk.</small></div>
+    <div class="node"><b><span class="tag t-cut">Removed</span> Director of Field Support</b><small>Dispatch joins booking in Customer Operations. Fleet &amp; Warehouse becomes Supply Chain. Safety &amp; Training splits into EHS, Training and Quality.</small></div>
+    <div class="node"><b>Every line is an owner, not a full-time hire</b><small>Several of these can start as one named person. Staff from workload, not from revenue.</small></div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section>
+  <span class="eyebrow">The reasoning</span>
+  <h2>Why we made each change</h2>
+  <p>One principle drove most of it: <strong>if a role is called a P&amp;L owner, it has to control the things that make that P&amp;L, meaning what gets sold, at what price, and with whose labor.</strong> The old chart broke that rule in several places at once.</p>
+  <div class="why">
+    <article>
+      <h3>1. The CEO goes back on top</h3>
+      <p class="chg"><b>Change:</b> CMO removed from above the CEO.</p>
+      <p>The CEO answers to the owner or board for the whole company. A CMO runs one function inside it. With the CMO on top, the person spending the marketing budget supervises the person accountable for whether that spend pays off. If that box is really the founder, the fix is to label it Owner / Board. They still get authority over the CEO, but it comes from the operating agreement, not from a marketing title. If they also run marketing day to day, draw that as a second box under the CEO.</p>
+    </article>
+    <article>
+      <h3>2. Three revenue layers become one</h3>
+      <p class="chg"><b>Change:</b> CMO, Director of Marketing, CRO and VP Sales collapse into one VP of Marketing. Selling moves to the GMs.</p>
+      <p>Marketing, booking, selling and membership are one funnel. The old chart split it across three branches, so no one owned the outcome. At $100M a CMO <em>and</em> a CRO is title inflation. One full-spectrum VP of Marketing covering acquisition, brand and lifecycle is enough, and this change often lowers executive cost.</p>
+    </article>
+    <article>
+      <h3>3. The GMs get a P&amp;L they actually control</h3>
+      <p class="chg"><b>Change:</b> Comfort advisors move under an HVAC Sales Manager reporting to the HVAC GM.</p>
+      <p>This was the chart's deepest flaw. The GMs were labeled P&amp;L owners while the CRO controlled their close rate, discounts and pricing. That setup ends in "sales sold it too cheap" versus "ops installed it wrong." With selling inside the trade, the tech-to-advisor handoff stays in one chain of command. GMs are paid on <em>controllable</em> contribution, not on net after overhead allocations they can't influence.</p>
+    </article>
+    <article>
+      <h3>4. Booking and dispatch merge</h3>
+      <p class="chg"><b>Change:</b> Contact center (from the CRO) and dispatch (from Field Support) go under one Director of Customer Operations.</p>
+      <p>Booking calls you have no capacity to run, or dispatching without knowing what was promised, is one of the most common failures in residential service. One owner fixes that. The risk is that Operations quietly turns down paid leads, so the merge only happens together with the anti-throttling controls listed below.</p>
+    </article>
+    <article>
+      <h3>5. A field supervisor layer gets added</h3>
+      <p class="chg"><b>Change:</b> Field supervisors at roughly 1 per 8–12 techs, carrying only a partial sales quota.</p>
+      <p>The council agreed this is the highest-return gap. One service manager can't ride along with, coach and check the callbacks of 50+ techs, so average ticket, callback rates and retention drift. Supervisors who carry a full quota stop coaching, which is why the quota is capped.</p>
+    </article>
+    <article>
+      <h3>6. Install and permit coordination are treated as core work</h3>
+      <p class="chg"><b>Change:</b> Install coordinators, a permit/inspection coordinator, and a release-to-install gate.</p>
+      <p>Install is roughly half the revenue. Without coordination, sold jobs stall with missing equipment, failed inspections or unresolved financing. No job goes on the install calendar until scope, equipment, permit path and financing are verified.</p>
+    </article>
+    <article>
+      <h3>7. Overloaded boxes get split</h3>
+      <p class="chg"><b>Change:</b> "Fleet &amp; Warehouse" becomes purchasing, warehouse and fleet. "Safety &amp; Training" becomes EHS, Technical Training and Quality.</p>
+      <p>Purchasing at this size covers $20–30M of equipment plus rebate programs worth real margin points, so it can't be a side job. Quality and safety must not report to the people whose numbers they grade, so QA sits outside both GMs and Safety can stop work and escalate straight to the CEO.</p>
+    </article>
+    <article>
+      <h3>8. Missing owners get named</h3>
+      <p class="chg"><b>Change:</b> Business Systems, risk and licensing, financing and rebate controls, deferred revenue, a membership program owner, and after-hours coverage.</p>
+      <p>A 500-person company running on ServiceTitan had no system owner. Licensing, which needs a named primary and backup license holder per trade and jurisdiction, had no owner either. Membership is both a capacity commitment and a deferred-revenue liability, so it needs one owner who can stop selling it in zones that can't deliver the visits.</p>
+    </article>
+  </div>
+</section>
+
+<!-- DECISIONS -->
+<section>
+  <span class="eyebrow">Before you redraw</span>
+  <h2>Four answers that change the chart</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Question</th><th>If yes</th><th>If no</th></tr></thead>
+      <tbody>
+        <tr><td>Is the "CMO" really the owner or founder?</td><td>Make the top box Owner / Board. Decide in writing whether they also run marketing under the CEO.</td><td>Move marketing under the CEO.</td></tr>
+        <tr><td>Does the CEO run the field operation day to day?</td><td>Delete the COO box. Its reports go to the CEO, with a wider span for now.</td><td>Keep the COO, with real authority over capacity, quality and safety.</td></tr>
+        <tr><td>Is the $100M spread across several distinct markets?</td><td>Flip the axis to Market GMs who run both trades. Keep the call center central.</td><td>Keep the trade GMs shown above.</td></tr>
+        <tr><td>Can a proven sales manager sit under each GM?</td><td>Use the default trade-P&amp;L model (Model B).</td><td>Use Model A: a central revenue leader owns sales, and the GMs become "Directors of Operations" with no P&amp;L label.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout"><b>The one structure that's ruled out</b> is the one you have now: GMs labeled P&amp;L owners while someone else sets their price, discounts and bookings. Model A and Model B both work. A mix of the two doesn't.</div>
+</section>
+
+<!-- CONTROLS -->
+<section>
+  <span class="eyebrow">What makes the boxes work</span>
+  <h2>Controls that ship with the chart</h2>
+  <ul class="plain">
+    <li><b>Anti-throttling:</b> GMs sign a rolling capacity plan. Capacity is published daily before the phones open. Every unbooked call gets a reason code. Paid ads pause the same day a trade or zone can't meet its service promise. Review weekly how much marketing spend went to calls that were turned away for lack of capacity.</li>
+    <li><b>Pricebook:</b> Ops sets the labor assumptions, supply chain sets material costs, GMs set prices above the floor, and the CFO sets and enforces the floor. Business Systems publishes changes under version control.</li>
+    <li><b>Discounts and financing:</b> approval tiers are enforced in the software (advisor, then sales manager, then GM, then CFO below the floor). The CFO caps dealer fees.</li>
+    <li><b>Incentives:</b> each role is paid on what it controls. Don't bonus on injury counts, callback classifications or booking rate, because that corrupts the reporting.</li>
+  </ul>
+</section>
+
+<!-- SEQUENCE -->
+<section>
+  <span class="eyebrow">Order of operations</span>
+  <h2>What to do first</h2>
+  <ol class="steps">
+    <li><b>Exposure audit (2–4 weeks).</b> Check excavation and 811 compliance, driver records and DOT status, license holders and their backups, payroll and overtime accuracy, financing disclosures, and refrigerant certifications. Fix active risks immediately.</li>
+    <li>Fix the top: pick Model A or B and collapse the CMO / CRO / VP Sales stack.</li>
+    <li>Add field supervisors plus install and permit coordinators.</li>
+    <li>Name a systems admin and a BI analyst, and produce the weekly margin and capacity view.</li>
+    <li>Merge booking and dispatch, together with the controls above. This is mostly a reorg, not new hiring.</li>
+    <li>Split purchasing from warehouse and fleet, and stand up independent QA and warranty recovery.</li>
+    <li>Deepen Finance: deferred revenue, financing and rebate reconciliation, pricebook floors.</li>
+    <li>Build technical training and the recruiting team. Add outbound and other revenue roles last.</li>
+  </ol>
+  <p style="color:var(--muted);font-size:13.5px">Sanity check only: the council estimated roughly 420–550 employees at about $170K–$230K revenue per employee. If you're well below that range, the problem is productivity, not missing executives.</p>
+</section>
+
+<!-- DISSENT -->
+<section>
+  <span class="eyebrow">Still contested</span>
+  <h2>Where the council didn't fully agree</h2>
+  <ul class="plain">
+    <li><b>Model A vs. B.</b> A minority view prefers a central sales leader, because GMs promoted from the field rarely coach selling well. The majority holds Model B, on the condition that a real sales manager sits under each GM.</li>
+    <li><b>Where booking sits.</b> A minority view would keep the call center under revenue to prevent ops from sandbagging. The majority's answer is that splitting booking from dispatch only hides the throttle in the capacity settings, so the controls matter more than the reporting line.</li>
+    <li><b>Technology's boss.</b> CEO/COO or CFO. Resolved as: it depends on how stable your systems are.</li>
+    <li><b>Ratios.</b> 1:8–12 supervisor spans are a starting range, not a rule. Geography and tech experience change them.</li>
+  </ul>
+</section>
+
+<footer>Synthesized from a Council debate, November 2026. The "before" chart is the proposed chart you shared.</footer>
+</div>
+</body>
+</html>
